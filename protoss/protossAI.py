@@ -59,7 +59,7 @@ class ProtossBot(sc2.BotAI):
                 await self.expand_now()
         
         if self.units(NEXUS).amount == 2 and self.units(PROBE).amount > 30:
-            if self.can_afford(NEXUS) and self.units(STALKER).amount > 20:
+            if self.can_afford(NEXUS) and self.units(STALKER).amount > 10:
                 await self.expand_now()
         
     async def build_gateway(self):
