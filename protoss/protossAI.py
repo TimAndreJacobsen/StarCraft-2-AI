@@ -66,6 +66,7 @@ class ProtossBot(sc2.BotAI):
         if self.units(PYLON).ready.exists:
             pylon = self.units(PYLON).ready.random
 
+            # If we don't have a cybernetics core, build a cyberneticscore first
             if self.units(GATEWAY).ready.exists and not self.units(CYBERNETICSCORE):
                 if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
                     await self.build(CYBERNETICSCORE, near=pylon)
@@ -103,5 +104,5 @@ class ProtossBot(sc2.BotAI):
 
 run_game(maps.get("(2)LostandFoundLE"),
     [Bot(Race.Protoss, ProtossBot()),
-    Computer(Race.Terran, Difficulty.Easy)],
+    Computer(Race.Terran, Difficulty.Hard)],
     realtime=False)
