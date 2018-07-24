@@ -71,6 +71,7 @@ class ProtossBot(sc2.BotAI):
                 if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
                     await self.build(CYBERNETICSCORE, near=pylon)
 
+            # Don't start building gateways before we have expanded to our natural
             if self.units(NEXUS).amount > 1:
                 if self.units(GATEWAY).amount < (self.units(NEXUS).amount * 3):
                     if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
