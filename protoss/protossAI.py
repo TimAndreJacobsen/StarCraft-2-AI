@@ -73,8 +73,13 @@ class ProtossBot(sc2.BotAI):
 
             # Don't start building gateways before we have expanded to our natural
             if self.units(NEXUS).amount > 1:
-                if self.units(GATEWAY).amount < (self.units(NEXUS).amount * 3):
+                if self.units(GATEWAY).amount < (self.units(NEXUS).amount * 2):
                     if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
+                        await self.build(GATEWAY, near=pylon)
+            
+            if self.units(NEXUS).amount > 1:
+                if self.units(STARGATE).amount < self.units(NEXUS).amount:
+                    if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
                         await self.build(GATEWAY, near=pylon)
 
     async def train_army(self):
