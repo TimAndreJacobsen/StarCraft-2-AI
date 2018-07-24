@@ -26,7 +26,7 @@ class ProtossBot(sc2.BotAI):
 
     async def train_probe(self):
         for nexus in self.units(NEXUS).ready.noqueue:
-            if self.units(PROBE).amount < (self.units(NEXUS).amount * 22):
+            if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES:
                 if self.can_afford(PROBE) and not self.already_pending(PROBE):
                     await self.do(nexus.train(PROBE))
 
