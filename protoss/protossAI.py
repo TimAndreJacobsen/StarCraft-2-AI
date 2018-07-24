@@ -7,7 +7,13 @@ import random
 
 class ProtossBot(sc2.BotAI):
 
+    def __init__(self):
+        self.ITERATIONS_PER_MINUTE = 165
+        self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 bases
+
     async def on_step(self, iteration):
+        self.iteration = iteration
+        
         await self.distribute_workers()
         await self.train_probe()
         await self.build_pylon()
