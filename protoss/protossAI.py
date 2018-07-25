@@ -17,6 +17,7 @@ class ProtossBot(sc2.BotAI):
         await self.distribute_workers()
         await self.use_buffs()
         await self.train_probe()
+        await self.use_buffs()
         await self.build_pylon()
         await self.build_assimilator()
         await self.expand()
