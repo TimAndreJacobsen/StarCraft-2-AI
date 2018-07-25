@@ -21,6 +21,7 @@ class ProtossBot(sc2.BotAI):
         await self.build_pylon()
         await self.build_assimilator()
         await self.expand()
+        await self.cybernetics_core()
         await self.build_gateway()
         await self.train_army()
         await self.attack()
