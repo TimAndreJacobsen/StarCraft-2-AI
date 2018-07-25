@@ -85,9 +85,9 @@ class ProtossBot(sc2.BotAI):
         if self.units(PYLON).ready.exists:
             pylon = self.units(PYLON).ready.random
 
-            elif self.units(NEXUS).amount > 2 and self.can_afford(NEXUS):
+            if self.units(NEXUS).amount > 2 and self.can_afford(NEXUS):
                 if not self.already_pending(GATEWAY):
-                        await self.build(GATEWAY, near=pylon)
+                    await self.build(GATEWAY, near=pylon)
             
             if self.units(NEXUS).amount > 1:
                 if self.units(STARGATE).amount < (self.units(NEXUS).amount):
