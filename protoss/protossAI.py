@@ -21,7 +21,6 @@ class ProtossBot(sc2.BotAI):
         await self.build_pylon()
         await self.build_assimilator()
         await self.expand()
-        await self.cybernetics_core()
         await self.build_gateway()
         await self.train_army()
         await self.attack()
@@ -91,11 +90,15 @@ class ProtossBot(sc2.BotAI):
                 if self.can_afford(STALKER) and self.supply_left > 0:
                     await self.do(gateway.train(STALKER))
 
+        for stargate in self.units(STARGATE).ready.noqueue:
+            if self.can_afford(VOIDRAY) and self.supply_left > 2:
+                await self.do(stargate.train(VOIDRAY))
+
     async def defend(self):
-        if self.units(STALKER).amount > 2:
-            for s in self.units(STALKER).idle:
+        if self.units(STALKER).amount > 0 and self.units(VOIDRAY).amount > 0:
+            for unit in self.units(STALKER) | self.units(VOIDRAY):
                 if len(self.known_enemy_units) > 0:
-                    await self.do(s.attack(random.choice(self.known_enemy_units)))
+                    await self.do(unit.attack(random.choice(self.known_enemy_units)))
 
     def find_target(self, state):
         if len(self.known_enemy_units) > 0:
@@ -106,10 +109,10 @@ class ProtossBot(sc2.BotAI):
             return self.enemy_start_locations[0]
 
     async def attack(self):
-        if self.units(STALKER).amount > 15:
+        if self.units(STALKER).amount > 5 and self.units(VOIDRAY).amount > 5:
             if self.units(NEXUS).amount >= 2:
-                for s in self.units(STALKER).idle:
-                    await self.do(s.attack(self.find_target(self.state)))
+                for unit in self.units(STALKER) | self.units(VOIDRAY):
+                    await self.do(unit.attack(self.find_target(self.state)))
 
 run_game(maps.get("(2)LostandFoundLE"),
     [Bot(Race.Protoss, ProtossBot()),
