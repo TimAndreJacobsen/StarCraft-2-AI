@@ -75,21 +75,14 @@ class ProtossBot(sc2.BotAI):
         if self.units(PYLON).ready.exists:
             pylon = self.units(PYLON).ready.random
 
-            # If we don't have a cybernetics core, build a cyberneticscore first
-            if self.units(GATEWAY).ready.exists and not self.units(CYBERNETICSCORE):
-                if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
-                    await self.build(CYBERNETICSCORE, near=pylon)
-
-            # Don't start building gateways before we have expanded to our natural
-            if self.units(NEXUS).amount > 1:
-                if self.units(GATEWAY).amount < (self.units(NEXUS).amount * 2):
-                    if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
+            elif self.units(NEXUS).amount > 2 and self.can_afford(NEXUS):
+                if not self.already_pending(GATEWAY):
                         await self.build(GATEWAY, near=pylon)
             
             if self.units(NEXUS).amount > 1:
-                if self.units(STARGATE).amount < self.units(NEXUS).amount:
+                if self.units(STARGATE).amount < (self.units(NEXUS).amount):
                     if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
-                        await self.build(GATEWAY, near=pylon)
+                        await self.build(STARGATE, near=pylon)
 
     async def train_army(self):
         for gateway in self.units(GATEWAY).ready.noqueue:
