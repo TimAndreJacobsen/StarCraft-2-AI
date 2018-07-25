@@ -21,6 +21,7 @@ class ProtossBot(sc2.BotAI):
         await self.build_pylon()
         await self.build_assimilator()
         await self.expand()
+        await self.cybernetics_core()
         await self.build_gateway()
         await self.train_army()
         await self.attack()
@@ -68,36 +69,38 @@ class ProtossBot(sc2.BotAI):
                 await self.expand_now()
         
         if self.units(NEXUS).amount == 2 and self.units(PROBE).amount > 30:
-            if self.can_afford(NEXUS) and self.units(STALKER).amount > 10:
+            if self.can_afford(NEXUS):
                 await self.expand_now()
         
     async def cybernetics_core(self):
-        if self.units(PYLON).ready.exists:
+        if self.units(PYLON).ready.exists and self.units(CYBERNETICSCORE).amount < 1:
             pylon = self.units(PYLON).ready.random
-            if self.units(NEXUS).amount == 1 or self.units(NEXUS).amount == 2:
-                if self.units(GATEWAY).amount < (self.units(NEXUS).amount):
-                    if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
-                        await self.build(GATEWAY, near=pylon)
-        
+
+            if not self.units(GATEWAY).exists or not self.already_pending(GATEWAY):
+                if self.can_afford(GATEWAY):
+                    await self.build(GATEWAY, near=pylon)
+
+            if self.units(GATEWAY).ready.exists and not self.already_pending(CYBERNETICSCORE):
+                if self.can_afford(CYBERNETICSCORE):
+                    await self.build(CYBERNETICSCORE, near=pylon)
         #TODO: add researching
 
     async def build_gateway(self):
-        if self.units(PYLON).ready.exists:
+        if self.units(PYLON).ready.exists and self.units(NEXUS).amount > 1:
             pylon = self.units(PYLON).ready.random
 
-            if self.units(NEXUS).amount > 2 and self.can_afford(NEXUS):
-                if not self.already_pending(GATEWAY):
+            if self.units(GATEWAY).amount < (self.units(NEXUS).amount) and (self.already_pending(CYBERNETICSCORE) or self.units(CYBERNETICSCORE).exists):
+                if self.can_afford(GATEWAY):
                     await self.build(GATEWAY, near=pylon)
-            
-            if self.units(NEXUS).amount > 1:
-                if self.units(STARGATE).amount < (self.units(NEXUS).amount):
-                    if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
-                        await self.build(STARGATE, near=pylon)
+
+            if self.units(STARGATE).amount < (self.units(NEXUS).amount):
+                if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
+                    await self.build(STARGATE, near=pylon)
 
     async def train_army(self):
         for gateway in self.units(GATEWAY).ready.noqueue:
             if self.units(CYBERNETICSCORE).ready.exists:
-                if self.can_afford(STALKER) and self.supply_left > 0:
+                if self.can_afford(STALKER) and self.supply_left > 2:
                     await self.do(gateway.train(STALKER))
 
         for stargate in self.units(STARGATE).ready.noqueue:
@@ -111,15 +114,10 @@ class ProtossBot(sc2.BotAI):
                     await self.do(unit.attack(random.choice(self.known_enemy_units)))
 
     def find_target(self, state):
-        if len(self.known_enemy_units) > 0:
-            return random.choice(self.known_enemy_units)
-        elif len(self.known_enemy_structures) > 0:
-            return random.choice(self.known_enemy_structures)
-        else:
-            return self.enemy_start_locations[0]
+        return self.enemy_start_locations[0]
 
     async def attack(self):
-        if self.units(STALKER).amount > 5 and self.units(VOIDRAY).amount > 5:
+        if self.units(STALKER).amount > 5 and self.units(VOIDRAY).amount > 2:
             if self.units(NEXUS).amount >= 2:
                 for unit in self.units(STALKER) | self.units(VOIDRAY):
                     await self.do(unit.attack(self.find_target(self.state)))
