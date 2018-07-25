@@ -71,6 +71,16 @@ class ProtossBot(sc2.BotAI):
             if self.can_afford(NEXUS) and self.units(STALKER).amount > 10:
                 await self.expand_now()
         
+    async def cybernetics_core(self):
+        if self.units(PYLON).ready.exists:
+            pylon = self.units(PYLON).ready.random
+            if self.units(NEXUS).amount == 1 or self.units(NEXUS).amount == 2:
+                if self.units(GATEWAY).amount < (self.units(NEXUS).amount):
+                    if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
+                        await self.build(GATEWAY, near=pylon)
+        
+        #TODO: add researching
+
     async def build_gateway(self):
         if self.units(PYLON).ready.exists:
             pylon = self.units(PYLON).ready.random
