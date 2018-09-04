@@ -2,6 +2,7 @@ import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.player import Bot, Computer
 from sc2.constants import *
+from sc2.game_info import Ramp, GameInfo
 import random
 
 
@@ -42,11 +43,15 @@ class ProtossBot(sc2.BotAI):
 
     async def build_pylon(self):
         if self.units(NEXUS).amount < 2:
-        if self.supply_left < 5 and not self.already_pending(PYLON):
-            nexi = self.units(NEXUS).ready
-            if nexi.exists:
-                if self.can_afford(PYLON):
+            if self.supply_left < 5 and not self.already_pending(PYLON):
+                nexi = self.units(NEXUS).ready
+                if nexi.exists:
+                    if self.can_afford(PYLON):
                         await self.build(PYLON, near=self.main_base_ramp.top_center)
+        elif self.units(NEXUS).amount > 2:
+            if self.supply_left < 15 and len(self.units(PYLON).not_ready) < 1:
+                if self.can_afford(PYLON):
+                    await self.build(PYLON, near=self.units(NEXUS).random)
         # if self.can_afford(PYLON) and not self.already_pending(PYLON):
         #     location = self.find_placement(PYLON, near=self.units(NEXUS).first)
         #     await self.build(PYLON, location)
@@ -89,7 +94,7 @@ class ProtossBot(sc2.BotAI):
         if self.units(PYLON).ready.exists and self.units(NEXUS).amount > 1:
             pylon = self.units(PYLON).ready.random
 
-            if self.units(GATEWAY).amount < (self.units(NEXUS).amount) and (self.already_pending(CYBERNETICSCORE) or self.units(CYBERNETICSCORE).exists):
+            if self.units(GATEWAY).amount < self.units(NEXUS).amount and (self.already_pending(CYBERNETICSCORE) or self.units(CYBERNETICSCORE).exists):
                 if self.can_afford(GATEWAY):
                     await self.build(GATEWAY, near=pylon)
 
