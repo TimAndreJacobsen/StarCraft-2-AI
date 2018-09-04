@@ -41,12 +41,12 @@ class ProtossBot(sc2.BotAI):
                     await self.do(nexus(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST, nexus))
 
     async def build_pylon(self):
+        if self.units(NEXUS).amount < 2:
         if self.supply_left < 5 and not self.already_pending(PYLON):
             nexi = self.units(NEXUS).ready
             if nexi.exists:
                 if self.can_afford(PYLON):
-                    await self.build(PYLON, near=nexi.first)
-        
+                        await self.build(PYLON, near=self.main_base_ramp.top_center)
         # if self.can_afford(PYLON) and not self.already_pending(PYLON):
         #     location = self.find_placement(PYLON, near=self.units(NEXUS).first)
         #     await self.build(PYLON, location)
