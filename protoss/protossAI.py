@@ -100,6 +100,9 @@ class ProtossBot(sc2.BotAI):
             if self.units(GATEWAY).amount < self.units(NEXUS).amount and (self.already_pending(CYBERNETICSCORE) or self.units(CYBERNETICSCORE).exists):
                 if self.can_afford(GATEWAY):
                     await self.build(GATEWAY, near=pylon)
+            elif len(self.units(GATEWAY)) < (self.iteration / self.ITERATIONS_PER_MINUTE):
+                if self.can_afford(GATEWAY):
+                    await self.build(GATEWAY, near=pylon)
 
             # If stargate < nexus then build stargate
             if self.units(STARGATE).amount < self.units(NEXUS).amount:
