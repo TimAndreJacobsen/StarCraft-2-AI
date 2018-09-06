@@ -74,7 +74,7 @@ class ProtossBot(sc2.BotAI):
             if self.can_afford(NEXUS):
                 await self.expand_now()
 
-        elif len(self.units(NEXUS)) * 2 < (self.iteration / self.ITERATIONS_PER_MINUTE):
+        elif len(self.units(NEXUS)) < ((self.iteration / self.ITERATIONS_PER_MINUTE) / 2):
             if self.can_afford(NEXUS) and not self.already_pending(NEXUS):
                 await self.expand_now()
         
