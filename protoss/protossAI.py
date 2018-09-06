@@ -90,15 +90,18 @@ class ProtossBot(sc2.BotAI):
                     await self.build(CYBERNETICSCORE, near=pylon)
         #TODO: add researching
 
+    # If you have a pylon and expansion(state?)
     async def build_gateway(self):
         if self.units(PYLON).ready.exists and self.units(NEXUS).amount > 1:
             pylon = self.units(PYLON).ready.random
 
+            # If gateway < nexus and cyberneticscore then build gateway
             if self.units(GATEWAY).amount < self.units(NEXUS).amount and (self.already_pending(CYBERNETICSCORE) or self.units(CYBERNETICSCORE).exists):
                 if self.can_afford(GATEWAY):
                     await self.build(GATEWAY, near=pylon)
 
-            if self.units(STARGATE).amount < (self.units(NEXUS).amount):
+            # If stargate < nexus then build stargate
+            if self.units(STARGATE).amount < self.units(NEXUS).amount:
                 if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
                     await self.build(STARGATE, near=pylon)
 
