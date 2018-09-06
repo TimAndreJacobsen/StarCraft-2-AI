@@ -52,16 +52,30 @@ class ProtossBot(sc2.BotAI):
                     await self.do(nexus(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST, nexus))
 
     async def build_pylon(self):
-        if self.supply_used < 195:
-            if self.units(NEXUS).amount < 2:
-                if self.supply_left < 10 and not self.already_pending(PYLON):
+        if self.units(PYLON).amount <= 2:
+            if self.supply_left < 5 and not self.already_pending(PYLON) and self.can_afford(PYLON):
+                await self.build(PYLON, near=self.main_base_ramp.top_center)
+        elif self.units(PYLON).amount > 2 and self.units(PYLON).amount < 10:
+            if self.supply_left < 10 and not self.already_pending(PYLON):
                     if self.can_afford(PYLON):
-                        await self.build(PYLON, near=self.main_base_ramp.top_center)
+                        await self.build(PYLON, near=self.townhalls.first.position.towards(self.game_info.map_center, 5))
+        else:
+            if self.supply_left < 25 and not self.already_pending(PYLON):
+                if self.can_afford(PYLON):
+                    await self.build(PYLON, near=self.townhalls.random.position.towards(self.game_info.map_center, 5))
 
-            elif self.units(NEXUS).amount > 2:
-                if self.supply_left < 15 and len(self.units(PYLON).not_ready) < 1:
-                    if self.can_afford(PYLON):
-                        await self.build(PYLON, near=self.units(PYLON).random)
+        # if self.supply_used < 30:
+        #     if self.supply_left < 10 and not self.already_pending(PYLON):
+        #         if self.can_afford(PYLON):
+        #             await self.build(PYLON, near=self.main_base_ramp.top_center)
+        # else:
+        #     if self.supply_left < 10 and not self.already_pending(PYLON):
+        #             if self.can_afford(PYLON):
+        #                 await self.build(PYLON, near=self.townhalls.first, max_distance=150)
+
+        #     elif self.supply_left < 20:
+        #             if self.can_afford(PYLON):
+        #                 await self.build(PYLON, near=self.units(PYLON).random, max_distance=50)
 
     async def build_assimilator(self):
         if self.units(PYLON).amount <= self.units(ASSIMILATOR).amount:
