@@ -21,7 +21,7 @@ class ProtossBot(sc2.BotAI):
         await self.use_buffs()
         await self.build_pylon()
         await self.build_assimilator()
-        await self.expand()
+        await self.expand(iteration)
         await self.cybernetics_core()
         await self.build_gateway()
         await self.train_army()
@@ -52,9 +52,6 @@ class ProtossBot(sc2.BotAI):
             if self.supply_left < 15 and len(self.units(PYLON).not_ready) < 1:
                 if self.can_afford(PYLON):
                     await self.build(PYLON, near=self.units(NEXUS).random)
-        # if self.can_afford(PYLON) and not self.already_pending(PYLON):
-        #     location = self.find_placement(PYLON, near=self.units(NEXUS).first)
-        #     await self.build(PYLON, location)
 
     async def build_assimilator(self):
         if self.units(PYLON).amount <= self.units(ASSIMILATOR).amount:
@@ -68,13 +65,17 @@ class ProtossBot(sc2.BotAI):
                         break
                     await self.do(probe.build(ASSIMILATOR, vespene))
 
-    async def expand(self):
-        if self.units(NEXUS).amount == 1 and self.units(PROBE).amount > 15:
+    async def expand(self, iteration):
+        if self.units(NEXUS).amount == 1:
             if self.can_afford(NEXUS):
                 await self.expand_now()
         
-        if self.units(NEXUS).amount == 2 and self.units(PROBE).amount > 30:
+        elif self.units(NEXUS).amount == 2 and self.units(PROBE).amount > 30:
             if self.can_afford(NEXUS):
+                await self.expand_now()
+
+        elif len(self.units(NEXUS)) * 2 < (self.iteration / self.ITERATIONS_PER_MINUTE):
+            if self.can_afford(NEXUS) and not self.already_pending(NEXUS):
                 await self.expand_now()
         
     async def cybernetics_core(self):
@@ -92,7 +93,7 @@ class ProtossBot(sc2.BotAI):
 
     # If you have a pylon and expansion(state?)
     async def build_gateway(self):
-        if self.units(PYLON).ready.exists and self.units(NEXUS).amount > 1:
+        if self.units(PYLON).ready.exists and self.units(NEXUS).amount >= 2:
             pylon = self.units(PYLON).ready.random
 
             # If gateway < nexus and cyberneticscore then build gateway
