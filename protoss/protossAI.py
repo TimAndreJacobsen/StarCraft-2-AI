@@ -14,6 +14,9 @@ class ProtossBot(sc2.BotAI):
 
     async def on_step(self, iteration):
         self.iteration = iteration
+
+        if (self.iteration % self.ITERATIONS_PER_MINUTE) == 0:
+            await self.chat_send("elapsed time: {}min".format(int(self.iteration / self.ITERATIONS_PER_MINUTE)))
         
         await self.distribute_workers()
         await self.use_buffs()
@@ -42,16 +45,16 @@ class ProtossBot(sc2.BotAI):
                     await self.do(nexus(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST, nexus))
 
     async def build_pylon(self):
-        if self.units(NEXUS).amount < 2:
-            if self.supply_left < 5 and not self.already_pending(PYLON):
-                nexi = self.units(NEXUS).ready
-                if nexi.exists:
+        if self.supply_used < 195:
+            if self.units(NEXUS).amount < 2:
+                if self.supply_left < 10 and not self.already_pending(PYLON):
                     if self.can_afford(PYLON):
                         await self.build(PYLON, near=self.main_base_ramp.top_center)
-        elif self.units(NEXUS).amount > 2:
-            if self.supply_left < 15 and len(self.units(PYLON).not_ready) < 1:
-                if self.can_afford(PYLON):
-                    await self.build(PYLON, near=self.units(NEXUS).random)
+
+            elif self.units(NEXUS).amount > 2:
+                if self.supply_left < 15 and len(self.units(PYLON).not_ready) < 1:
+                    if self.can_afford(PYLON):
+                        await self.build(PYLON, near=self.units(PYLON).random)
 
     async def build_assimilator(self):
         if self.units(PYLON).amount <= self.units(ASSIMILATOR).amount:
@@ -100,7 +103,7 @@ class ProtossBot(sc2.BotAI):
             if self.units(GATEWAY).amount < self.units(NEXUS).amount and (self.already_pending(CYBERNETICSCORE) or self.units(CYBERNETICSCORE).exists):
                 if self.can_afford(GATEWAY):
                     await self.build(GATEWAY, near=pylon)
-            elif len(self.units(GATEWAY)) < (self.iteration / self.ITERATIONS_PER_MINUTE):
+            elif len(self.units(GATEWAY)) < (self.iteration / self.ITERATIONS_PER_MINUTE) / 2:
                 if self.can_afford(GATEWAY):
                     await self.build(GATEWAY, near=pylon)
 
