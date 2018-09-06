@@ -9,7 +9,7 @@ import random
 class ProtossBot(sc2.BotAI):
 
     def __init__(self):
-        self.ITERATIONS_PER_MINUTE = 165
+        self.ITERATIONS_PER_MINUTE = 168 # From own testing in-game
         self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 bases
 
     async def on_step(self, iteration):
