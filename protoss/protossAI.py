@@ -11,12 +11,14 @@ class ProtossBot(sc2.BotAI):
     def __init__(self):
         self.ITERATIONS_PER_MINUTE = 168 # From own testing in-game
         self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 bases
+        self.GAME_TIME = 0 # In minutes
 
     async def on_step(self, iteration):
         self.iteration = iteration
 
         if (self.iteration % self.ITERATIONS_PER_MINUTE) == 0:
             await self.chat_send("elapsed time: {}min".format(int(self.iteration / self.ITERATIONS_PER_MINUTE)))
+            self.GAME_TIME = self.GAME_TIME + 1
         
         await self.distribute_workers()
         await self.use_buffs()
