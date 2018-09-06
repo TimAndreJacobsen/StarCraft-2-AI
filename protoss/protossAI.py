@@ -38,6 +38,11 @@ class ProtossBot(sc2.BotAI):
             if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES:
                 if self.can_afford(PROBE) and not self.already_pending(PROBE):
                     await self.do(nexus.train(PROBE))
+        
+            if self.GAME_TIME > 8:
+                if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES + 30:
+                    if self.can_afford(PROBE) and not self.already_pending(PROBE):
+                        await self.do(nexus.train(PROBE))
 
     async def use_buffs(self):
         for nexus in self.units(NEXUS).ready:
