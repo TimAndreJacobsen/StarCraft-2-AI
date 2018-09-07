@@ -93,11 +93,9 @@ class ProtossBot(sc2.BotAI):
         if self.units(NEXUS).amount == 1:
             if self.can_afford(NEXUS):
                 await self.expand_now()
-        
         elif self.units(NEXUS).amount == 2 and self.units(PROBE).amount > 30:
             if self.can_afford(NEXUS):
                 await self.expand_now()
-
         elif len(self.units(NEXUS)) < ((self.iteration / self.ITERATIONS_PER_MINUTE) / 2):
             if self.can_afford(NEXUS) and not self.already_pending(NEXUS):
                 await self.expand_now()
@@ -137,7 +135,11 @@ class ProtossBot(sc2.BotAI):
         for gateway in self.units(GATEWAY).ready.noqueue:
             if self.units(CYBERNETICSCORE).ready.exists:
                 if self.can_afford(STALKER) and self.supply_left > 2:
-                    await self.do(gateway.train(STALKER))
+                    if (self.units(STALKER).amount / 2 < self.units(VOIDRAY).amount) or self.units(STALKER).amount < 5:
+                        await self.do(gateway.train(STALKER))
+            else:            
+                if self.can_afford(ZEALOT) and self.supply_left > 1:
+                    await self.do(gateway.train(ZEALOT))
 
         for stargate in self.units(STARGATE).ready.noqueue:
             if self.can_afford(VOIDRAY) and self.supply_left > 2:
