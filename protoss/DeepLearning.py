@@ -118,21 +118,21 @@ class ProtossBot(sc2.BotAI):
 
     # If you have a pylon and expansion(state?)
     async def build_gateway(self):
-        if self.units(PYLON).ready.exists and self.units(NEXUS).amount >= 2:
-            pylon = self.units(PYLON).ready.random
+        if self.units(PYLON).exists:
+            pylon = self.units(PYLON).random
 
-        if self.units(GATEWAY).ready.exists and not self.units(CYBERNETICSCORE):
-            if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
-                await self.build(CYBERNETICSCORE, near=pylon)
+            if self.units(GATEWAY).ready.exists and not self.units(CYBERNETICSCORE):
+                if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
+                    await self.build(CYBERNETICSCORE, near=pylon)
 
-        elif self.units(GATEWAY).amount < 1:
-            if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
-                await self.build(GATEWAY, near=pylon)
+            elif self.units(GATEWAY).amount < 1:
+                if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
+                    await self.build(GATEWAY, near=pylon)
 
-        if self.units(CYBERNETICSCORE).ready.exists:
-            if len(self.units(STARGATE)) < (self.iteration / self.ITERATIONS_PER_MINUTE):
-                if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
-                    await self.build(STARGATE, near=pylon)
+            if self.units(CYBERNETICSCORE).ready.exists:
+                if len(self.units(STARGATE)) < (self.iteration / self.ITERATIONS_PER_MINUTE):
+                    if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
+                        await self.build(STARGATE, near=pylon)
 
     async def train_army(self):
         for stargate in self.units(STARGATE).ready.noqueue:
@@ -162,8 +162,8 @@ class ProtossBot(sc2.BotAI):
     async def attack(self, iteration):
         if self.GAME_TIME <= 5:
 
-            aggressive_units = {STALKER: [10, 3],
-                                VOIDRAY: [8, 3]}
+            aggressive_units = {STALKER: [0, 0],
+                                VOIDRAY: [5, 1]}
 
             for UNIT in aggressive_units: # Attack the enemy
                 if self.units(UNIT).amount > aggressive_units[UNIT][0] and self.units(UNIT).amount > aggressive_units[UNIT][1]:
@@ -176,7 +176,7 @@ class ProtossBot(sc2.BotAI):
                             
         else:
             if iteration % self.ITERATIONS_PER_MINUTE == 0:
-                if self.units(STALKER).amount > 5 and self.units(VOIDRAY).amount > 5:
+                if self.units(VOIDRAY).amount > 5:
                     for unit in self.units(STALKER).idle | self.units(VOIDRAY).idle:
                         await self.do(unit.attack(self.find_target(self.state)))
 
