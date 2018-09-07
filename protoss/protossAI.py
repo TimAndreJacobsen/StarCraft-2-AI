@@ -144,15 +144,21 @@ class ProtossBot(sc2.BotAI):
                 await self.do(stargate.train(VOIDRAY))
 
     async def defend(self):
-        #Stalkers
+        # Stalker
         if self.units(STALKER).amount > 0:
             for unit in self.units(STALKER).idle:
-                if len(self.known_enemy_units) > 0:
+                if len(self.known_enemy_units) > 1:
                     await self.do(unit.attack(random.choice(self.known_enemy_units)))
-        #Void Rays
+        # VoidRay
         if self.units(VOIDRAY).amount > 0:
             for unit in self.units(VOIDRAY).idle:
-                if len(self.known_enemy_units) > 0:
+                if len(self.known_enemy_units) > 1:
+                    await self.do(unit.attack(random.choice(self.known_enemy_units)))
+
+        # Zealot
+        if self.units(ZEALOT).amount > 0:
+            for unit in self.units(ZEALOT).idle:
+                if len(self.known_enemy_units) > 1:
                     await self.do(unit.attack(random.choice(self.known_enemy_units)))
 
     def find_target(self, state):
