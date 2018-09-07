@@ -4,6 +4,8 @@ from sc2.player import Bot, Computer
 from sc2.constants import *
 from sc2.game_info import Ramp, GameInfo
 import random
+import cv2
+import numpy as np
 
 
 class ProtossBot(sc2.BotAI):
