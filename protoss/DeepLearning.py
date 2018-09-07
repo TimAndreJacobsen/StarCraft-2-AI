@@ -30,7 +30,7 @@ class ProtossBot(sc2.BotAI):
         await self.build_assimilator()
         await self.expand(iteration)
         await self.cybernetics_core()
-        await self.build_gateway()
+        await self.unit_production_buildings()
         await self.train_army()
         await self.attack(iteration)
         await self.defend()
@@ -118,33 +118,26 @@ class ProtossBot(sc2.BotAI):
                 await self.expand_now()
         
     async def cybernetics_core(self):
-        if self.units(PYLON).ready.exists and self.units(CYBERNETICSCORE).amount < 1:
-            pylon = self.units(PYLON).ready.random
-
-            if not self.units(GATEWAY).exists or not self.already_pending(GATEWAY):
-                if self.can_afford(GATEWAY):
-                    await self.build(GATEWAY, near=pylon)
-
-            if self.units(GATEWAY).ready.exists and not self.already_pending(CYBERNETICSCORE):
-                if self.can_afford(CYBERNETICSCORE):
-                    await self.build(CYBERNETICSCORE, near=pylon)
         #TODO: add researching
+        return
 
     # If you have a pylon and expansion(state?)
-    async def build_gateway(self):
-        if self.units(PYLON).exists:
+    async def unit_production_buildings(self):
+        if self.units(PYLON).amount > 0:
             pylon = self.units(PYLON).random
 
-            if self.units(GATEWAY).ready.exists and not self.units(CYBERNETICSCORE):
-                if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
+            # Build first Gateway
+            if self.units(GATEWAY).amount == 0 and self.can_afford(GATEWAY):
+                if self.iteration % 6 == 0:
+                    await self.build(GATEWAY, near=pylon)
+            # Build first Cybernetics Core
+            if self.units(CYBERNETICSCORE).amount == 0 and self.can_afford(CYBERNETICSCORE) and self.units(GATEWAY).amount > 0:
+                if self.iteration % 6 == 0:
                     await self.build(CYBERNETICSCORE, near=pylon)
 
-            elif self.units(GATEWAY).amount < 1:
-                if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
-                    await self.build(GATEWAY, near=pylon)
-
-            if self.units(CYBERNETICSCORE).ready.exists:
-                if len(self.units(STARGATE)) < (self.iteration / self.ITERATIONS_PER_MINUTE):
+            # Build stargates
+            if self.units(CYBERNETICSCORE).ready.exists and self.can_afford(STARGATE):
+                if self.units(STARGATE).amount < self.units(NEXUS).amount:
                     if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
                         await self.build(STARGATE, near=pylon)
 
