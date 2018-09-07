@@ -64,22 +64,7 @@ class ProtossBot(sc2.BotAI):
                 if self.can_afford(PYLON):
                     await self.build(PYLON, near=self.townhalls.random.position.towards(self.game_info.map_center, 5))
 
-        # if self.supply_used < 30:
-        #     if self.supply_left < 10 and not self.already_pending(PYLON):
-        #         if self.can_afford(PYLON):
-        #             await self.build(PYLON, near=self.main_base_ramp.top_center)
-        # else:
-        #     if self.supply_left < 10 and not self.already_pending(PYLON):
-        #             if self.can_afford(PYLON):
-        #                 await self.build(PYLON, near=self.townhalls.first, max_distance=150)
-
-        #     elif self.supply_left < 20:
-        #             if self.can_afford(PYLON):
-        #                 await self.build(PYLON, near=self.units(PYLON).random, max_distance=50)
-
     async def build_assimilator(self):
-        if self.units(PYLON).amount <= self.units(ASSIMILATOR).amount:
-            return
         for nexus in self.units(NEXUS).ready:
             vespenes = self.state.vespene_geyser.closer_than(15.0, nexus)
             for vespene in vespenes:
