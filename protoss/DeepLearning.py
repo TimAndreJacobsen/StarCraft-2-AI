@@ -131,13 +131,13 @@ class ProtossBot(sc2.BotAI):
                 if self.iteration % 6 == 0:
                     await self.build(GATEWAY, near=pylon)
             # Build first Cybernetics Core
-            if self.units(CYBERNETICSCORE).amount == 0 and self.can_afford(CYBERNETICSCORE) and self.units(GATEWAY).amount > 0:
-                if self.iteration % 6 == 0:
-                    await self.build(CYBERNETICSCORE, near=pylon)
-
+            if self.units(GATEWAY).ready.exists:
+                if self.units(CYBERNETICSCORE).amount == 0 and self.can_afford(CYBERNETICSCORE):
+                    if self.iteration % 6 == 0:
+                        await self.build(CYBERNETICSCORE, near=pylon)
             # Build stargates
             if self.units(CYBERNETICSCORE).ready.exists and self.can_afford(STARGATE):
-                if self.units(STARGATE).amount < self.units(NEXUS).amount:
+                if self.units(STARGATE).amount < (self.units(NEXUS).amount + 1):
                     if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
                         await self.build(STARGATE, near=pylon)
 
