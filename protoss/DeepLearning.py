@@ -23,16 +23,17 @@ class ProtossBot(sc2.BotAI):
             self.GAME_TIME = self.GAME_TIME + 1
         
         await self.scout()
+
         await self.distribute_workers()
         await self.use_buffs()
         await self.train_probe()
-        await self.use_buffs()
         await self.build_pylon()
         await self.build_assimilator()
         await self.expand(iteration)
         await self.cybernetics_core()
         await self.unit_production_buildings()
         await self.train_army()
+
         await self.attack(iteration)
         await self.defend()
 
@@ -115,7 +116,6 @@ class ProtossBot(sc2.BotAI):
             if scout.is_idle:
                 enemy_location = self.enemy_start_locations[0]
                 move_to = self.random_location_variance(enemy_location)
-                print(move_to)
                 await self.do(scout.move(move_to))
 
         else:
