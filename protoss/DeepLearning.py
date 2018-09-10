@@ -129,6 +129,13 @@ class ProtossBot(sc2.BotAI):
         if military_worker_ratio > 1.0:
             military_worker_ratio = 1.0
 
+        # Visualizing the training data
+        cv2.line(game_data, (0, 19), (int(line_max*military_worker_ratio), 19), (250, 250, 200), 3) # Voidray to worker ratio
+        cv2.line(game_data, (0, 15), (int(line_max*supply_max), 15), (220, 200, 200), 3) # Supply used to max ratio (supply/200)
+        cv2.line(game_data, (0, 11), (int(line_max*supply_ratio), 11), (150, 150, 150), 3) # Supply avaliable to supply used (supply_left/supply_used)
+        cv2.line(game_data, (0, 7), (int(line_max*vespene_ratio), 7), (210, 200, 0), 3) # Gas / 1500
+        cv2.line(game_data, (0, 3), (int(line_max*mineral_ratio), 3), (0, 255, 25), 3) # minerals / 1500
+        
         flipped = cv2.flip(game_data, 0) # Flip the data to get correct axis
         resized = cv2.resize(flipped, dsize=None, fx=2, fy=2) # resize by a factor of 2, make visualization larger
         cv2.imshow('Intel', resized) # Display image
