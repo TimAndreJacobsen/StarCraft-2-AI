@@ -43,6 +43,7 @@ class ProtossBot(sc2.BotAI):
         game_data = np.zeros((self.game_info.map_size[1], self.game_info.map_size[0], 3), np.uint8)
         
         # Unit Type [size, (color)]
+        # Unit Type [size, (BGR color)]
         draw_dict = {
                     NEXUS: [15, (0, 255, 0)],
                     PYLON: [3, (20, 235, 0)],
@@ -51,6 +52,7 @@ class ProtossBot(sc2.BotAI):
                     GATEWAY: [3, (200, 100, 0)],
                     CYBERNETICSCORE: [3, (150, 150, 0)],
                     STARGATE: [5, (255, 0, 0)],
+                    ROBOTICSFACILITY: [3, (215, 155, 0)],
                     VOIDRAY: [3, (255, 100, 0)],
                     }
 
@@ -58,7 +60,49 @@ class ProtossBot(sc2.BotAI):
             for unit in self.units(unit_type).ready:
                 pos = unit.position
                 # cv2.circle(img, center, radius, color[, thickness[, lineType[, shift]]]) → img
+                # Draws every friendly unit, excluding oberserver
                 cv2.circle(game_data, (int(pos[0]), int(pos[1])), draw_dict[unit_type][0], draw_dict[unit_type][1], -1)
+                
+        main_base_names =   ["nexus", 
+                            "commandcenter", 
+                            "orbitalcommand", 
+                            "planetaryfortress", 
+                            "hatchery", 
+                            "lair", 
+                            "hive"]
+
+        # Draws a medium circle for enemy structures, excluding townhalls
+        for enemy_building in self.known_enemy_structures:
+            pos = enemy_building.position # Get positional data for enemy structures
+            if enemy_building.name.lower() not in main_base_names: 
+                cv2.circle(game_data, (int(pos[0]), int(pos[1])), 5, (200, 50, 212), -1)
+
+        # Draws a big circle for enemy townhall
+        for enemy_building in self.known_enemy_structures:
+            pos = enemy_building.position # Get positional data for enemy structures
+            if enemy_building.name.lower() in main_base_names:
+                cv2.circle(game_data, (int(pos[0]), int(pos[1])), 15, (0, 0, 255), -1)
+
+        # Draws a small circle for enemy units
+        for enemy_unit in self.known_enemy_units:
+            if not enemy_unit.is_structure:
+
+                worker_names = ["probe",
+                                "scv",
+                                "drone"]
+
+                pos = enemy_unit.position
+                if enemy_unit.name.lower() in worker_names:
+                    # Draws a dot for enemy workers
+                    cv2.circle(game_data, (int(pos[0]), int(pos[1])), 1, (55, 0, 155), -1)
+                else:
+                    # Draws a dot for enemy units
+                    cv2.circle(game_data, (int(pos[0]), int(pos[1])), 3, (50, 0, 215), -1)
+
+        for obs in self.units(OBSERVER).ready:
+            pos = obs.position
+            # Draws a dot for Oberserver
+            cv2.circle(game_data, (int(pos[0]), int(pos[1])), 1, (255, 255, 255), -1)
 
         flipped = cv2.flip(game_data, 0) # Flip the data to get correct axis
         resized = cv2.resize(flipped, dsize=None, fx=2, fy=2) # resize by a factor of 2, make visualization larger
