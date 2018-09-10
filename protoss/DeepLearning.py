@@ -245,7 +245,12 @@ class ProtossBot(sc2.BotAI):
                     await self.do(unit.attack(random.choice(self.known_enemy_units)))
 
     def find_target(self, state):
-        return self.enemy_start_locations[0]
+        if len(self.known_enemy_units) > 0:
+            return random.choice(self.known_enemy_units)
+        elif len(self.known_enemy_structures) > 0:
+            return random.choice(self.known_enemy_structures)
+        else:
+            return self.enemy_start_locations[0]
 
     async def attack(self, iteration):
         if self.GAME_TIME <= 5:
@@ -263,7 +268,7 @@ class ProtossBot(sc2.BotAI):
                             await self.do(u.attack(random.choice(self.known_enemy_units)))
                             
         else:
-            if iteration % self.ITERATIONS_PER_MINUTE == 0:
+            if iteration % self.ITERATIONS_PER_MINUTE == 0: # Once per in-game minute
                 if self.units(VOIDRAY).amount > 5:
                     for unit in self.units(STALKER).idle | self.units(VOIDRAY).idle:
                         await self.do(unit.attack(self.find_target(self.state)))
