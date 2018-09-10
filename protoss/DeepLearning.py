@@ -1,5 +1,5 @@
 import sc2
-from sc2 import run_game, maps, Race, Difficulty
+from sc2 import run_game, maps, Race, Difficulty, position
 from sc2.player import Bot, Computer
 from sc2.constants import *
 from sc2.game_info import Ramp, GameInfo
@@ -43,7 +43,6 @@ class ProtossBot(sc2.BotAI):
         # numpy.zeroes( (int * int), dtype=color, 8bit unsigned int)
         game_data = np.zeros((self.game_info.map_size[1], self.game_info.map_size[0], 3), np.uint8)
         
-        # Unit Type [size, (color)]
         # Unit Type [size, (BGR color)]
         draw_dict = {
                     NEXUS: [15, (0, 255, 0)],
@@ -124,6 +123,25 @@ class ProtossBot(sc2.BotAI):
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
                     await self.do(rf.train(OBSERVER))
 
+    def random_location_variance(self, enemy_start_location):
+        x = enemy_start_location[0]
+        y = enemy_start_location[1]
+
+        x += ((random.randrange(-20, 20))/100) * enemy_start_location[0]
+        y += ((random.randrange(-20, 20))/100) * enemy_start_location[1]
+
+        if x < 0:
+            x = 0
+        if y < 0:
+            y = 0
+        if x > self.game_info.map_size[0]:
+            x = self.game_info.map_size[0]
+        if y > self.game_info.map_size[1]:
+            y = self.game_info.map_size[1]
+
+        go_to = position.Point2(position.Pointlike((x,y)))
+        return go_to
+
     async def train_probe(self):
         for nexus in self.units(NEXUS).ready.noqueue:
             if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES:
@@ -136,6 +154,7 @@ class ProtossBot(sc2.BotAI):
                         await self.do(nexus.train(PROBE))
 
     async def use_buffs(self):
+        # Nexus buffs
         for nexus in self.units(NEXUS).ready:
             if not nexus.has_buff(BuffId.CHRONOBOOSTENERGYCOST):
                 abilities = await self.get_available_abilities(nexus)
