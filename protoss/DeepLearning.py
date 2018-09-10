@@ -124,11 +124,8 @@ class ProtossBot(sc2.BotAI):
                     await self.do(rf.train(OBSERVER))
 
     def random_location_variance(self, enemy_start_location):
-        x = enemy_start_location[0]
-        y = enemy_start_location[1]
-
-        x += ((random.randrange(-20, 20))/100) * enemy_start_location[0]
-        y += ((random.randrange(-20, 20))/100) * enemy_start_location[1]
+        x = enemy_start_location[0] + random.randrange(-20, 20)
+        y = enemy_start_location[1] + random.randrange(-20, 20)
 
         if x < 0:
             x = 0
