@@ -6,6 +6,8 @@ from sc2.game_info import Ramp, GameInfo
 import random
 import cv2
 import numpy as np
+from math import sqrt
+from operator import itemgetter
 
 
 class ProtossBot(sc2.BotAI):
@@ -112,12 +114,15 @@ class ProtossBot(sc2.BotAI):
 
     async def scout(self):
         if self.units(OBSERVER).amount > 0:
-            scout = self.units(OBSERVER)[0]
-            if scout.is_idle:
-                enemy_location = self.enemy_start_locations[0]
-                move_to = self.random_location_variance(enemy_location)
-                await self.do(scout.move(move_to))
-
+            locations = [[0, self.enemy_start_locations[0]]]
+            for possible in self.expansion_locations:
+                distance = sqrt((possible[0] - self.enemy_start_locations[0][0])**2 + (possible[1] - self.enemy_start_locations[0][1])**2)
+                locations.append([distance, possible])
+            locations = sorted(locations, key=itemgetter(0))
+            del locations[5:]
+            for s in self.units(OBSERVER).idle:
+                await self.do(s.move(random.choice(locations)[1])) 
+                
         else:
             for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
