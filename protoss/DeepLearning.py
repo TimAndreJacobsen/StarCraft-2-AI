@@ -107,6 +107,28 @@ class ProtossBot(sc2.BotAI):
             # Draws a dot for Oberserver
             cv2.circle(game_data, (int(pos[0]), int(pos[1])), 1, (255, 255, 255), -1)
 
+        # Creating data ratios for resources, supply and units
+        line_max = 50
+
+        # Minerals and gas
+        mineral_ratio = self.minerals / 1500
+        if mineral_ratio > 1.0:
+            mineral_ratio = 1.0
+        vespene_ratio = self.vespene / 1500
+        if vespene_ratio > 1.0:
+            vespene_ratio = 1.0
+
+        # How close to supply cap
+        supply_ratio = self.supply_left / self.supply_cap
+        if supply_ratio > 1.0:
+            supply_ratio = 1.0
+        supply_max = self.supply_cap / 200
+
+        # Voidray to worker ratio
+        military_worker_ratio = len(self.units(VOIDRAY)) / (self.supply_cap - self.supply_left)
+        if military_worker_ratio > 1.0:
+            military_worker_ratio = 1.0
+
         flipped = cv2.flip(game_data, 0) # Flip the data to get correct axis
         resized = cv2.resize(flipped, dsize=None, fx=2, fy=2) # resize by a factor of 2, make visualization larger
         cv2.imshow('Intel', resized) # Display image
@@ -122,7 +144,7 @@ class ProtossBot(sc2.BotAI):
             del locations[5:]
             for s in self.units(OBSERVER).idle:
                 await self.do(s.move(random.choice(locations)[1])) 
-                
+
         else:
             for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
