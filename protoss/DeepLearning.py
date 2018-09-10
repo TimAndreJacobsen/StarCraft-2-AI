@@ -105,6 +105,7 @@ class ProtossBot(sc2.BotAI):
                     if probe is None:
                         break
                     await self.do(probe.build(ASSIMILATOR, vespene))
+        #TODO: Slow down the rate of assimilator building
 
     async def expand(self, iteration):
         if self.units(NEXUS).amount == 1:
@@ -126,20 +127,25 @@ class ProtossBot(sc2.BotAI):
         if self.units(PYLON).amount > 0:
             pylon = self.units(PYLON).random
 
-            # Build first Gateway
+            # Build one Gateway
             if self.units(GATEWAY).amount == 0 and self.can_afford(GATEWAY):
                 if self.iteration % 6 == 0:
                     await self.build(GATEWAY, near=pylon)
-            # Build first Cybernetics Core
+            # Build one Cybernetics Core
             if self.units(GATEWAY).ready.exists:
                 if self.units(CYBERNETICSCORE).amount == 0 and self.can_afford(CYBERNETICSCORE):
                     if self.iteration % 6 == 0:
                         await self.build(CYBERNETICSCORE, near=pylon)
-            # Build stargates
+            # Build stargates; One per nexus + 1
             if self.units(CYBERNETICSCORE).ready.exists and self.can_afford(STARGATE):
                 if self.units(STARGATE).amount < (self.units(NEXUS).amount + 1):
                     if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
                         await self.build(STARGATE, near=pylon)
+            # Build one Robotics Facility
+            if self.units(CYBERNETICSCORE).ready.exists:
+                if len(self.units(ROBOTICSFACILITY)) < 1:
+                    if self.can_afford(ROBOTICSFACILITY) and not self.already_pending(ROBOTICSFACILITY):
+                        await self.build(ROBOTICSFACILITY, near=pylon)
 
     async def train_army(self):
         for stargate in self.units(STARGATE).ready.noqueue:
