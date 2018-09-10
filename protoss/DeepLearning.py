@@ -22,6 +22,7 @@ class ProtossBot(sc2.BotAI):
             await self.chat_send("elapsed time: {}min".format(int(self.iteration / self.ITERATIONS_PER_MINUTE)))
             self.GAME_TIME = self.GAME_TIME + 1
         
+        await self.scout()
         await self.distribute_workers()
         await self.use_buffs()
         await self.train_probe()
@@ -108,6 +109,20 @@ class ProtossBot(sc2.BotAI):
         resized = cv2.resize(flipped, dsize=None, fx=2, fy=2) # resize by a factor of 2, make visualization larger
         cv2.imshow('Intel', resized) # Display image
         cv2.waitKey(1)
+
+    async def scout(self):
+        if self.units(OBSERVER).amount > 0:
+            scout = self.units(OBSERVER)[0]
+            if scout.is_idle:
+                enemy_location = self.enemy_start_locations[0]
+                move_to = self.random_location_variance(enemy_location)
+                print(move_to)
+                await self.do(scout.move(move_to))
+
+        else:
+            for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
+                if self.can_afford(OBSERVER) and self.supply_left > 0:
+                    await self.do(rf.train(OBSERVER))
 
     async def train_probe(self):
         for nexus in self.units(NEXUS).ready.noqueue:
