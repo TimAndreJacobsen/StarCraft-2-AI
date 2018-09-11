@@ -178,15 +178,16 @@ class ProtossBot(sc2.BotAI):
         return go_to
 
     async def train_probe(self):
-        for nexus in self.units(NEXUS).ready.noqueue:
-            if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES:
-                if self.can_afford(PROBE) and not self.already_pending(PROBE):
-                    await self.do(nexus.train(PROBE))
-        
-            if self.GAME_TIME > 8:
-                if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES + 30:
+        if not self.supply_used == self.supply_cap:
+            for nexus in self.units(NEXUS).ready.noqueue:
+                if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES:
                     if self.can_afford(PROBE) and not self.already_pending(PROBE):
                         await self.do(nexus.train(PROBE))
+            
+                if self.GAME_TIME > 8:
+                    if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES + 30:
+                        if self.can_afford(PROBE) and not self.already_pending(PROBE):
+                            await self.do(nexus.train(PROBE))
 
     async def use_buffs(self):
         # Nexus buffs
@@ -261,9 +262,10 @@ class ProtossBot(sc2.BotAI):
                         await self.build(ROBOTICSFACILITY, near=pylon)
 
     async def train_army(self):
-        for stargate in self.units(STARGATE).ready.noqueue:
-            if self.can_afford(VOIDRAY) and self.supply_left > 2:
-                await self.do(stargate.train(VOIDRAY))
+        if not self.supply_used == self.supply_cap:
+            for stargate in self.units(STARGATE).ready.noqueue:
+                if self.can_afford(VOIDRAY) and self.supply_left > 2:
+                    await self.do(stargate.train(VOIDRAY))
 
     def find_target(self, state):
         if len(self.known_enemy_units) > 0:
