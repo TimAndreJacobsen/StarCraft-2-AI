@@ -17,6 +17,7 @@ class ProtossBot(sc2.BotAI):
         self.ITERATIONS_PER_MINUTE = 168 # From own testing in-game
         self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 bases
         self.GAME_TIME = 0 # In minutes
+        self.do_something_after = 0
 
     async def on_step(self, iteration):
         self.iteration = iteration
@@ -272,6 +273,40 @@ class ProtossBot(sc2.BotAI):
             return random.choice(self.known_enemy_structures)
         else:
             return self.enemy_start_locations[0]
+
+    async def attack(self):
+        if len(self.units(VOIDRAY).idle) > 0:
+            choice = random.randrange(0, 4)
+            target = False
+
+            if self.iteration > self.do_something_after:
+                if choice == 0:
+                    # no attack
+                    wait = random.randrange(20, 165)
+                    self.do_something_after = self.iteration + wait
+
+                elif choice == 1:
+                    # attack closest known enemy unit to friendly nexus
+                    if len(self.known_enemy_units) > 0:
+                        target = self.known_enemy_units.closest_to(random.choice(self.units(NEXUS)))
+
+                elif choice == 2:
+                    #attack enemy structures
+                    if len(self.known_enemy_structures) > 0:
+                        target = random.choice(self.known_enemy_structures)
+
+                elif choice == 3:
+                    #attack_enemy_start
+                    target = self.enemy_start_locations[0]
+
+                if target:
+                    for vr in self.units(VOIDRAY).idle:
+                        await self.do(vr.attack(target))
+
+                y = np.zeros(4)
+                y[choice] = 1
+                print(y)
+                self.train_data.append([y,self.flipped])
 
 run_game(maps.get("(2)LostandFoundLE"),
     [Bot(Race.Protoss, ProtossBot()),
