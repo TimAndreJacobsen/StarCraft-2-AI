@@ -6,15 +6,11 @@ Protoss ai. Makes decisions on attacking units.
 
 ## Dependencies
 
-##### python-sc2 by Dentosal
+##### [python-sc2](https://github.com/Dentosal/python-sc2) by Dentosal
 
-[python-sc2](https://github.com/Dentosal/python-sc2)
-
-##### python-sc2 fork by daniel
+##### [python-sc2 fork](https://github.com/daniel-kukiela/python-sc2) by daniel
 
 adds function on_end which passes game result
-
-[python-sc2 fork](https://github.com/daniel-kukiela/python-sc2)
 
 ### Other
 
