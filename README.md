@@ -1,5 +1,8 @@
-# sc2ai - computer ai for Starcraft 2
+# Starcraft 2 ai with deep learning.
 
-## asynchronous ai written in python
+## Python
 
-## Built with library: python-sc2
+### Built with libraries: 
+python-sc2 by dentosal
+opencv2
+numpy
