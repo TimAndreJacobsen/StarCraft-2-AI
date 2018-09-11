@@ -155,9 +155,7 @@ class ProtossBot(sc2.BotAI):
                     await self.do(s.move(random.choice(locations)[1])) 
             else:
                 for s in self.units(OBSERVER).idle:
-                    for loc in locations:
-                        await self.do(s.move(loc))
-
+                    await self.do(s.move(random.choice(locations)[1]))
         else:
             for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
