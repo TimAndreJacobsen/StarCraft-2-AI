@@ -18,6 +18,7 @@ class ProtossBot(sc2.BotAI):
         self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 bases
         self.GAME_TIME = 0 # In minutes
         self.do_something_after = 0
+        self.train_data = []
 
     async def on_step(self, iteration):
         self.iteration = iteration
@@ -307,6 +308,14 @@ class ProtossBot(sc2.BotAI):
                 y[choice] = 1
                 print(y)
                 self.train_data.append([y,self.flipped])
+
+    def on_end(self, game_result):
+        print('--- on_end called ---')
+        print(game_result)
+
+        if game_result == Result.Victory:
+            np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
+
 
 run_game(maps.get("(2)LostandFoundLE"),
     [Bot(Race.Protoss, ProtossBot()),
