@@ -287,12 +287,13 @@ class ProtossBot(sc2.BotAI):
             target = False
 
             if self.iteration > self.do_something_after:
-                if choice == 0:
-                    # no attack
-                    wait = random.randrange(20, 165)
-                    self.do_something_after = self.iteration + wait
+                wait = self.ITERATIONS_PER_MINUTE // 12
+                self.do_something_after = self.iteration + wait
 
-                elif choice == 1:
+                if choice == 0:
+                    wait = self.ITERATIONS_PER_MINUTE // 2
+                
+                if choice == 1:
                     # attack closest known enemy unit to friendly nexus
                     if len(self.known_enemy_units) > 0:
                         target = self.known_enemy_units.closest_to(random.choice(self.units(NEXUS)))
@@ -309,6 +310,9 @@ class ProtossBot(sc2.BotAI):
                 if target:
                     for vr in self.units(VOIDRAY).idle:
                         await self.do(vr.attack(target))
+                else:
+                    for vr in self.units(VOIDRAY).idle:
+                        await self.do(vr.move(self.main_base_ramp.top_center)) 
 
                 y = np.zeros(4)
                 y[choice] = 1
