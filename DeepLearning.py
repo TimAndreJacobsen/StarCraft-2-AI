@@ -241,13 +241,13 @@ class ProtossBot(sc2.BotAI):
             pylon = self.units(PYLON).random
 
             # Build one Gateway
-            if self.units(GATEWAY).amount == 0 and self.can_afford(GATEWAY):
-                if self.iteration % 6 == 0:
+            if len(self.units(GATEWAY)) < 1:
+                if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
                     await self.build(GATEWAY, near=pylon)
             # Build one Cybernetics Core
             if self.units(GATEWAY).ready.exists:
-                if self.units(CYBERNETICSCORE).amount == 0 and self.can_afford(CYBERNETICSCORE):
-                    if self.iteration % 6 == 0:
+                if len(self.units(CYBERNETICSCORE)) < 1:
+                    if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
                         await self.build(CYBERNETICSCORE, near=pylon)
             # Build stargates; One per nexus + 1
             if self.units(CYBERNETICSCORE).ready.exists and self.can_afford(STARGATE):
