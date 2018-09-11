@@ -103,3 +103,5 @@ venv.bak/
 # mypy
 .mypy_cache/
 protoss/tempCodeRunnerFile.py
+/sc2
+/train_data
