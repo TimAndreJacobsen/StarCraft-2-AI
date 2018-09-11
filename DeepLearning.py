@@ -120,7 +120,7 @@ class ProtossBot(sc2.BotAI):
             vespene_ratio = 1.0
 
         # How close to supply cap
-        supply_ratio = self.supply_left / self.supply_cap
+        supply_ratio = self.supply_left + 1 / self.supply_cap + 1
         if supply_ratio > 1.0:
             supply_ratio = 1.0
         supply_max = self.supply_cap / 200
