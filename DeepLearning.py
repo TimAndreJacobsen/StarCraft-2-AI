@@ -149,13 +149,19 @@ class ProtossBot(sc2.BotAI):
                 distance = sqrt((possible[0] - self.enemy_start_locations[0][0])**2 + (possible[1] - self.enemy_start_locations[0][1])**2)
                 locations.append([distance, possible])
             locations = sorted(locations, key=itemgetter(0))
+
             if self.GAME_TIME < 8:
                 del locations[5:]
                 for s in self.units(OBSERVER).idle:
                     await self.do(s.move(random.choice(locations)[1])) 
             else:
+                if self.units(OBSERVER).amount < 3:
+                    for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
+                        if self.can_afford(OBSERVER) and self.supply_left > 0:
+                            await self.do(rf.train(OBSERVER))
                 for s in self.units(OBSERVER).idle:
                     await self.do(s.move(random.choice(locations)[1]))
+
         else:
             for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
