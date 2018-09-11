@@ -282,7 +282,6 @@ class ProtossBot(sc2.BotAI):
             return self.enemy_start_locations[0]
 
     async def attack(self):
-        if len(self.units(VOIDRAY).idle) > 0:
             choice = random.randrange(0, 4)
             target = False
 
