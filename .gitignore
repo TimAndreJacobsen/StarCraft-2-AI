@@ -105,3 +105,5 @@ venv.bak/
 protoss/tempCodeRunnerFile.py
 /sc2
 /train_data
+/logs
+BasicCNN-10-epochs-0.0001-LR-STAGE1
