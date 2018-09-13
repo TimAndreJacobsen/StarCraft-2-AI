@@ -10,7 +10,7 @@ model = Sequential()
 
 # Main convolutional hidden layers
 model.add(Conv2D(32, (3, 3), padding='same',
-                 input_shape=(176, 200, 3),
+                 input_shape=(168, 168, 3),
                  activation='relu'))
 model.add(Conv2D(32, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -111,10 +111,10 @@ for i in range(hm_epochs):
         test_size = 100
         batch_size = 128
 
-        x_train = np.array([i[1] for i in train_data[:-test_size]]).reshape(-1, 176, 200, 3)
+        x_train = np.array([i[1] for i in train_data[:-test_size]]) #.reshape(-1, 176, 200, 3)
         y_train = np.array([i[0] for i in train_data[:-test_size]])
 
-        x_test = np.array([i[1] for i in train_data[-test_size:]]).reshape(-1, 176, 200, 3)
+        x_test = np.array([i[1] for i in train_data[-test_size:]]) #.reshape(-1, 176, 200, 3)
         y_test = np.array([i[0] for i in train_data[-test_size:]])
 
         model.fit(x_train, y_train, 
