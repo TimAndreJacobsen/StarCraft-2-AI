@@ -268,7 +268,7 @@ class ProtossBot(sc2.BotAI):
                         await self.build(ROBOTICSFACILITY, near=pylon)
 
     async def train_army(self):
-        if not self.supply_used == self.supply_cap:
+        if not self.supply_used > 196:
             for stargate in self.units(STARGATE).ready.noqueue:
                 if self.can_afford(VOIDRAY) and self.supply_left > 2:
                     await self.do(stargate.train(VOIDRAY))
@@ -326,8 +326,8 @@ class ProtossBot(sc2.BotAI):
         if game_result == Result.Victory:
             np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
 
-
-run_game(maps.get("(2)LostandFoundLE"),
-    [Bot(Race.Protoss, ProtossBot()),
-    Computer(Race.Terran, Difficulty.Hard)],
-    realtime=False)
+while True:
+    run_game(maps.get("(2)LostandFoundLE"),
+        [Bot(Race.Protoss, ProtossBot()),
+        Computer(Race.Terran, Difficulty.Hard)],
+        realtime=False)
