@@ -6,9 +6,10 @@ import numpy as np
 import os
 import random
 
+# Setting up the model
 model = Sequential()
 
-# Main convolutional hidden layers
+# Input layer (L-4)
 model.add(Conv2D(32, (3, 3), padding='same',
                  input_shape=(168, 168, 3),
                  activation='relu'))
@@ -16,22 +17,26 @@ model.add(Conv2D(32, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.2))
 
+# Hidden layer (L-3)
 model.add(Conv2D(64, (3, 3), padding='same',
                  activation='relu'))
 model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.2))
 
+# Hidden layer (L-2)
 model.add(Conv2D(128, (3, 3), padding='same',
                  activation='relu'))
 model.add(Conv2D(128, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.2))
 
+# Hidden layer (L-1)
 model.add(Flatten())
 model.add(Dense(512, activation='relu'))
 model.add(Dropout(0.5))
 
+# Output Layer (L)
 model.add(Dense(4, activation='softmax'))
 
 learning_rate = 0.0001
