@@ -1,10 +1,10 @@
-# Starcraft 2 AI learning 
+# Starcraft 2 AI with neural networking training
 
-Basic bot to generate training data for a convolutional neural network.
+Basic bot to generate training data for a convolutional 2d neural network.
 Picks 1 out of 4 avaliable decisions for it's attacking units and stores it's choice in an array.
-Data is fed through 5 layers including I/O.
 
 Goal: See if there's an improvement in the win rate of a AI with a trained neural network.
+Possibly adding more generations
 
 ## Getting Started
 
