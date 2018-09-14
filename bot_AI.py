@@ -9,16 +9,22 @@ import numpy as np
 from math import sqrt
 from operator import itemgetter
 import time
+import keras
 
 
 class ProtossBot(sc2.BotAI):
 
-    def __init__(self):
+    def __init__(self, use_model=False):
         self.ITERATIONS_PER_MINUTE = 168 # From own testing in-game
         self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 bases
         self.GAME_TIME = 0 # In minutes
         self.do_something_after = 0
         self.train_data = []
+        self.use_model = use_model
+
+        if self.use_model:
+            print("using model")
+            self.model = keras.models.load_model("BasicCNN-10-epochs-0.0001-LR-STAGE1")
 
     async def on_step(self, iteration):
         self.iteration = iteration
@@ -283,10 +289,23 @@ class ProtossBot(sc2.BotAI):
 
     async def attack(self):
         if len(self.units(VOIDRAY).idle) > 2:
-            choice = random.randrange(0, 4)
             target = False
-
             if self.iteration > self.do_something_after:
+
+                if self.use_model:
+                    prediction = self.model.predict([self.flipped.reshape([-1, 168, 168, 3])])
+                    choice = np.argmax(prediction[0])
+                    choices = {0: "Regroup",
+                            1: "Attack closest",
+                            2: "Attack random enemy structure",
+                            3: "Attack enemy spawn"}
+                    print("Decision {}: {}".format(choice, choices[choice]))
+
+                else:
+                    choice = random.randrange(0, 4)
+
+
+
                 wait = self.ITERATIONS_PER_MINUTE // 12
                 self.do_something_after = self.iteration + wait
 
@@ -323,11 +342,8 @@ class ProtossBot(sc2.BotAI):
         print('--- on_end called ---')
         print(game_result)
 
-        if game_result == Result.Victory:
-            np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
 
-while True:
-    run_game(maps.get("(2)LostandFoundLE"),
-        [Bot(Race.Protoss, ProtossBot()),
-        Computer(Race.Terran, Difficulty.Hard)],
-        realtime=False)
+run_game(maps.get("(2)LostandFoundLE"),
+    [Bot(Race.Protoss, ProtossBot(use_model=True)),
+    Computer(Race.Terran, Difficulty.Hard)],
+    realtime=False)
