@@ -15,9 +15,7 @@ import keras
 class ProtossBot(sc2.BotAI):
 
     def __init__(self, use_model=False):
-        self.ITERATIONS_PER_MINUTE = 168 # From own testing in-game
         self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 bases
-        self.GAME_TIME = 0 # In minutes
         self.do_something_after = 0
         self.train_data = []
         self.use_model = use_model
@@ -27,11 +25,7 @@ class ProtossBot(sc2.BotAI):
             self.model = keras.models.load_model("BasicCNN-10-epochs-0.0001-LR-STAGE1")
 
     async def on_step(self, iteration):
-        self.iteration = iteration
-
-        if (self.iteration % self.ITERATIONS_PER_MINUTE) == 0:
-            await self.chat_send("elapsed time: {}min".format(int(self.iteration / self.ITERATIONS_PER_MINUTE)))
-            self.GAME_TIME = self.GAME_TIME + 1
+        self.time = self.state.game_loop / 22.4 # Produces in-game seconds
         
         await self.scout()
         await self.distribute_workers()
@@ -39,14 +33,12 @@ class ProtossBot(sc2.BotAI):
         await self.train_probe()
         await self.build_pylon()
         await self.build_assimilator()
-        await self.expand(iteration)
+        await self.expand()
         await self.cybernetics_core()
         await self.unit_production_buildings()
         await self.train_army()
         await self.intel()
         await self.attack()
-
-
 
     async def intel(self):
         # Map x,y coords reversed and stored as a touple in numpy.zeroes
@@ -233,14 +225,16 @@ class ProtossBot(sc2.BotAI):
                     await self.do(probe.build(ASSIMILATOR, vespene))
         #TODO: Slow down the rate of assimilator building
 
-    async def expand(self, iteration):
+    async def expand(self):
         if self.units(NEXUS).amount == 1:
             if self.can_afford(NEXUS):
                 await self.expand_now()
+
         elif self.units(NEXUS).amount == 2 and self.units(PROBE).amount > 30:
             if self.can_afford(NEXUS):
                 await self.expand_now()
-        elif len(self.units(NEXUS)) < ((self.iteration / self.ITERATIONS_PER_MINUTE) / 2):
+
+        elif len(self.units(NEXUS)) < self.time / 30:
             if self.can_afford(NEXUS) and not self.already_pending(NEXUS):
                 await self.expand_now()
         
@@ -273,6 +267,9 @@ class ProtossBot(sc2.BotAI):
                     if self.can_afford(ROBOTICSFACILITY) and not self.already_pending(ROBOTICSFACILITY):
                         await self.build(ROBOTICSFACILITY, near=pylon)
 
+            if self.minerals > 1000 and not self.already_pending(STARGATE):
+                await self.build(STARGATE, near=pylon)
+
     async def train_army(self):
         if not self.supply_used > 196:
             for stargate in self.units(STARGATE).ready.noqueue:
@@ -290,7 +287,7 @@ class ProtossBot(sc2.BotAI):
     async def attack(self):
         if len(self.units(VOIDRAY).idle) > 2:
             target = False
-            if self.iteration > self.do_something_after:
+            if self.time > self.do_something_after:
 
                 if self.use_model:
                     prediction = self.model.predict([self.flipped.reshape([-1, 168, 168, 3])])
@@ -306,11 +303,11 @@ class ProtossBot(sc2.BotAI):
 
 
 
-                wait = self.ITERATIONS_PER_MINUTE // 12
-                self.do_something_after = self.iteration + wait
+                wait = 5
+                self.do_something_after = self.time + wait
 
                 if choice == 0:
-                    wait = self.ITERATIONS_PER_MINUTE // 2
+                    wait = 10
                 
                 if choice == 1:
                     # attack closest known enemy unit to friendly nexus
