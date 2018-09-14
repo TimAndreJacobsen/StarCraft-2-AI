@@ -148,7 +148,7 @@ class ProtossBot(sc2.BotAI):
                 locations.append([distance, possible])
             locations = sorted(locations, key=itemgetter(0))
 
-            if self.GAME_TIME < 8:
+            if self.time < 480: # 8minutes
                 del locations[5:]
                 for s in self.units(OBSERVER).idle:
                     await self.do(s.move(random.choice(locations)[1])) 
@@ -188,7 +188,7 @@ class ProtossBot(sc2.BotAI):
                     if self.can_afford(PROBE) and not self.already_pending(PROBE):
                         await self.do(nexus.train(PROBE))
             
-                if self.GAME_TIME > 8:
+                if self.time < 480:
                     if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES + 30:
                         if self.can_afford(PROBE) and not self.already_pending(PROBE):
                             await self.do(nexus.train(PROBE))
