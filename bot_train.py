@@ -325,6 +325,15 @@ class ProtossBot(sc2.BotAI):
 
         if game_result == Result.Victory:
             np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
+        else:
+            with open("train_data_winrate/gen1.txt", "r") as f:
+                print("-- opening loss counter --")
+                x = int(f.readline())
+                x = x + 1
+                f.close
+                f = open("train_data_winrate/gen2.txt", "w")
+                f.write(str(x))
+                f.close
 
 while True:
     run_game(maps.get("(2)LostandFoundLE"),
