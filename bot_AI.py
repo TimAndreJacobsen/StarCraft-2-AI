@@ -342,6 +342,19 @@ class ProtossBot(sc2.BotAI):
         print('--- on_end called ---')
         print(game_result)
 
+        if game_result == Result.Victory:
+            print("Recording winning choices")
+            np.save("train_data_gen2/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
+        else:
+            with open("train_data_winrate/gen2.txt", "r") as f:
+                print("-- opening loss counter --")
+                x = int(f.readline())
+                x = x + 1
+                f.close
+                f = open("train_data_winrate/gen2.txt", "w")
+                f.write(str(x))
+                f.close
+
 
 run_game(maps.get("(2)LostandFoundLE"),
     [Bot(Race.Protoss, ProtossBot(use_model=True)),
