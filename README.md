@@ -1,7 +1,10 @@
-# Starcraft 2 ai with deep learning
+# Starcraft 2 AI learning 
 
-Protoss ai. Makes decisions on attacking units.
-Decisions will be fed through a learning model to see if the AI can improve its play and learn.
+Basic bot to generate training data for a convolutional neural network.
+Picks 1 out of 4 avaliable decisions for it's attacking units and stores it's choice in an array.
+Data is fed through 5 layers including I/O.
+
+Goal: See if there's an improvement in the win rate of a AI with a trained neural network.
 
 ## Getting Started
 
@@ -13,7 +16,9 @@ adds function on_end which passes game result
 
 ##### Keras
 
-##### TensorBoard
+##### Tensorflow
+
+##### Opencv
 
 ### Other
 Python 3.6
