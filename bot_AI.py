@@ -10,6 +10,7 @@ from math import sqrt
 from operator import itemgetter
 import time
 import keras
+import math
 
 
 class ProtossBot(sc2.BotAI):
@@ -19,6 +20,7 @@ class ProtossBot(sc2.BotAI):
         self.do_something_after = 0
         self.train_data = []
         self.use_model = use_model
+        self.scouting_dict = {}
 
         if self.use_model:
             print("using model")
@@ -141,26 +143,61 @@ class ProtossBot(sc2.BotAI):
         cv2.waitKey(1)
 
     async def scout(self):
-        if self.units(OBSERVER).amount > 0:
-            locations = [[0, self.enemy_start_locations[0]]]
-            for possible in self.expansion_locations:
-                distance = sqrt((possible[0] - self.enemy_start_locations[0][0])**2 + (possible[1] - self.enemy_start_locations[0][1])**2)
-                locations.append([distance, possible])
-            locations = sorted(locations, key=itemgetter(0))
+        self.enemy_base_loc = {}
+        for el in self.expansion_locations:
+            distance_to_enemy_start = el.distance_to(self.enemy_start_locations[0])
+            self.enemy_base_loc[distance_to_enemy_start] = el
 
-            if self.time < 480: # 8minutes
-                del locations[5:]
-                for s in self.units(OBSERVER).idle:
-                    await self.do(s.move(random.choice(locations)[1])) 
-            else:
-                if self.units(OBSERVER).amount < 3:
-                    for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
-                        if self.can_afford(OBSERVER) and self.supply_left > 0:
-                            await self.do(rf.train(OBSERVER))
-                for s in self.units(OBSERVER).idle:
-                    await self.do(s.move(random.choice(locations)[1]))
+        self.ordered_expansion_distances = sorted(k for k in self.enemy_base_loc)
 
+        existing_ids = [unit.tag for unit in self.units]
+        to_be_removed = []
+        for noted_scout in self.scouting_dict:
+            if noted_scout not in existing_ids:
+                to_be_removed.append(noted_scout)
+
+        for scout in to_be_removed:
+            del self.scouting_dict[scout]
+
+        if len(self.units(ROBOTICSFACILITY).ready) == 0:
+            unit_type = PROBE
+            unit_limit = 1
         else:
+            unit_type = OBSERVER
+            unit_limit = 3
+
+        assign_scout = True
+
+        if unit_type == PROBE:
+            for unit in self.units(PROBE):
+                if unit.tag in self.scouting_dict:
+                    assign_scout = False
+
+        if assign_scout:
+            if len(self.units(unit_type).idle) > 0:
+                for obs in self.units(unit_type).idle[:unit_limit]:
+                    if obs.tag not in self.scouting_dict:
+                        for dist in self.ordered_expansion_distances:
+                            try:
+                                location = self.enemy_base_loc[dist]
+                                active_locations = [self.scouting_dict[k] for k in self.scouting_dict]
+
+                                if location not in active_locations:
+                                    if unit_type == PROBE:
+                                        for unit in self.units(PROBE):
+                                            if unit.tag in self.scouting_dict:
+                                                continue
+                                            
+                                    await self.do(obs.move(location))
+                                    self.scouting_dict[obs.tag] = location
+                                    break
+                            except Exception as e:
+                                print(str(e))
+
+        for obs in self.units(unit_type):
+            if obs.tag in self.scouting_dict:
+                if obs in [probe for probe in self.units(PROBE)]:
+                    await self.do(obs.move(self.random_location_variance(self.scouting_dict[obs.tag])))
             for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
                     await self.do(rf.train(OBSERVER))
