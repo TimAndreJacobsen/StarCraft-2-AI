@@ -29,6 +29,7 @@ class ProtossBot(sc2.BotAI):
     async def on_step(self, iteration):
         self.time = self.state.game_loop / 22.4 # Produces in-game seconds
         
+        await self.build_scout()
         await self.scout()
         await self.distribute_workers()
         await self.use_buffs()
@@ -198,6 +199,9 @@ class ProtossBot(sc2.BotAI):
             if obs.tag in self.scouting_dict:
                 if obs in [probe for probe in self.units(PROBE)]:
                     await self.do(obs.move(self.random_location_variance(self.scouting_dict[obs.tag])))
+
+    async def build_scout(self):
+        if len(self.units(OBSERVER)) < math.floor((self.time/60)/3):
             for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
                     await self.do(rf.train(OBSERVER))
@@ -305,7 +309,8 @@ class ProtossBot(sc2.BotAI):
                         await self.build(ROBOTICSFACILITY, near=pylon)
 
             if self.minerals > 1000 and not self.already_pending(STARGATE):
-                await self.build(STARGATE, near=pylon)
+                if self.can_afford(STARGATE):
+                    await self.build(STARGATE, near=pylon)
 
     async def train_army(self):
         if not self.supply_used > 196:
