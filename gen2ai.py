@@ -291,11 +291,12 @@ class ProtossBot(sc2.BotAI):
         return go_to
 
     async def expand(self):
-        if self.units(NEXUS).amount == 1:
+        try:
             if self.can_afford(NEXUS):
                 await self.expand_now()
-
-
+        except Exception as e:
+            print(str(e))
+        
     async def build_pylon(self):
         if self.units(PYLON).amount <= 2:
             if self.supply_left < 5 and not self.already_pending(PYLON) and self.can_afford(PYLON):
@@ -325,18 +326,11 @@ class ProtossBot(sc2.BotAI):
         if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
             await self.build(GATEWAY, near=pylon)
 
-        elif self.units(NEXUS).amount == 2 and self.units(PROBE).amount > 30:
-            if self.can_afford(NEXUS):
-                await self.expand_now()
     async def build_stargate(self):
         pylon = self.units(PYLON).ready.random
         if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
             await self.build(STARGATE, near=pylon)
 
-        elif len(self.units(NEXUS)) < self.time / 30:
-            if self.can_afford(NEXUS) and not self.already_pending(NEXUS):
-                await self.expand_now()
-        
     async def cybernetics_core(self):
         #TODO: add researching
         return
