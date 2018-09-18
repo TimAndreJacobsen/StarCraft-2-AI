@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from math import sqrt
 from operator import itemgetter
-import time
+import time_seconds
 import keras
 import math
 
@@ -16,12 +16,11 @@ import math
 class ProtossBot(sc2.BotAI):
 
     def __init__(self, use_model=False):
-        self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 bases
+        self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 active bases
         self.do_something_after = 0
         self.train_data = []
         self.use_model = use_model
-        self.scouting_dict = {}
-
+        self.scouting_dict = {} # [unit, location]
         self.decisions = {
                           0: self.build_scout,
                           1: self.build_zealot,
@@ -36,7 +35,7 @@ class ProtossBot(sc2.BotAI):
                           10: self.attack_known_enemy_unit,
                           11: self.attack_known_enemy_structure,
                           12: self.expand,
-                          13: self.do_nothing,
+                          13: self.use_buffs,
                           }
 
         if self.use_model:
@@ -44,8 +43,7 @@ class ProtossBot(sc2.BotAI):
             self.model = keras.models.load_model("BasicCNN-10-epochs-0.0001-LR-STAGE1")
 
     async def on_step(self, iteration):
-        self.time = self.state.game_loop / 22.4 # Produces in-game seconds
-        
+        self.time_seconds = self.state.game_loop / 22.4 # Time in seconds
         await self.distribute_workers()
         await self.scout()
         await self.intel()
@@ -54,7 +52,7 @@ class ProtossBot(sc2.BotAI):
 
     async def intel(self):
         # Map x,y coords reversed and stored as a touple in numpy.zeroes
-        # numpy.zeroes( (int * int), dtype=color, 8bit unsigned int)
+        # numpy.zeroes( (int*int), dtype=color, 8bit unsigned int)
         game_data = np.zeros((self.game_info.map_size[1], self.game_info.map_size[0], 3), np.uint8)
         
         # Unit Type [size, (BGR color)]
