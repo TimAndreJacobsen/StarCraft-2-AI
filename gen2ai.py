@@ -34,7 +34,7 @@ class ProtossBot(sc2.BotAI):
                           8: self.build_pylon,
                           9: self.defend_nexus,
                           10: self.attack_known_enemy_unit,
-                          11: self.attack_known_enemy_buildings,
+                          11: self.attack_enemy_start,
                           12: self.expand,
                           13: self.use_buffs,
                           }
@@ -356,7 +356,7 @@ class ProtossBot(sc2.BotAI):
                 if len(u) > 2:
                     await self.do(u.attack(target))
 
-    async def attack_known_enemy_buildings(self):
+    async def attack_enemy_start(self):
         if len(self.known_enemy_structures) > 0:
             target = random.choice(self.known_enemy_structures)
             for u in self.units(VOIDRAY).idle | self.units(STALKER).idle | self.units(ZEALOT).idle:
