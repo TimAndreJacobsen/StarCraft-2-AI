@@ -263,6 +263,12 @@ class ProtossBot(sc2.BotAI):
             if self.units(GATEWAY).ready.exists:
                 if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
                     await self.build(CYBERNETICSCORE, near=pylon)
+
+    async def train_voidray(self):
+        sg = self.units(STARGATE).ready.random
+        if sg.exists and self.can_afford(VOIDRAY):
+            await self.do(gw.train(VOIDRAY))
+
     def random_location_variance(self, enemy_start_location):
         x = enemy_start_location[0] + random.randrange(-20, 20)
         y = enemy_start_location[1] + random.randrange(-20, 20)
