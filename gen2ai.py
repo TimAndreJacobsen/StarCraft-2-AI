@@ -239,6 +239,10 @@ class ProtossBot(sc2.BotAI):
                 if obs in [probe for probe in self.units(PROBE)]:
                     await self.do(obs.move(self.random_location_variance(self.scouting_dict[obs.tag])))
 
+    async def train_probe(self):
+        nexi = self.units(NEXUS).ready
+        if nexi.exists and self.can_afford(PROBE):
+            await self.do(random.choice(nexi).train(PROBE))
 
     async def train_scout(self):
         if len(self.units(OBSERVER)) < math.floor((self.time_seconds/60)/3):
@@ -286,17 +290,6 @@ class ProtossBot(sc2.BotAI):
         go_to = position.Point2(position.Pointlike((x,y)))
         return go_to
 
-    async def train_probe(self):
-        if not self.supply_used == self.supply_cap:
-            for nexus in self.units(NEXUS).ready.noqueue:
-                if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES:
-                    if self.can_afford(PROBE) and not self.already_pending(PROBE):
-                        await self.do(nexus.train(PROBE))
-            
-                if self.time < 480:
-                    if self.units(PROBE).amount < (self.units(NEXUS).amount * 22) and self.units(PROBE).amount < self.MAX_PROBES + 30:
-                        if self.can_afford(PROBE) and not self.already_pending(PROBE):
-                            await self.do(nexus.train(PROBE))
 
     async def use_buffs(self):
         # Nexus buffs
