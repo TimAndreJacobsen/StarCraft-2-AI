@@ -49,6 +49,38 @@ class ProtossBot(sc2.BotAI):
         await self.intel()
         await self.decide()
 
+    async def decide(self):
+        if self.time_seconds > self.do_something_after:
+            if self.use_model:
+                prediction = self.model.predict([self.flipped])
+                choice = np.argmax(prediction[0])
+            else:
+                choice = random.randrange(0, 14)
+            try:
+                await self.decisions[choice]()
+            except Exception as e:
+                print(str(e))
+
+            y = np.zeros(14)
+            y[choice] = 1
+            self.train_data.append([y, self.flipped])
+
+    def on_end(self, game_result):
+        print('--- on_end called ---')
+        print(game_result)
+
+        if game_result == Result.Victory:
+            print("Recording winning choices")
+            np.save("train_data_gen2/{}.npy".format(str(int(time_seconds.time_seconds()))), np.array(self.train_data))
+        else:
+            with open("train_data_winrate/gen2.txt", "r") as f:
+                print("-- opening loss counter --")
+                x = int(f.readline())
+                x = x + 1
+                f.close
+                f = open("train_data_winrate/gen2.txt", "w")
+                f.write(str(x))
+                f.close
 
     async def intel(self):
         # Map x,y coords reversed and stored as a touple in numpy.zeroes
@@ -338,23 +370,7 @@ class ProtossBot(sc2.BotAI):
         else:
             return self.enemy_start_locations[0]
 
-    async def decide(self):
 
-        if self.time > self.do_something_after:
-            if self.use_model:
-                prediction = self.model.predict([self.flipped])
-                choice = np.argmax(prediction[0])
-            else:
-                choice = random.randrange(0, 14)
-            try:
-                await self.decisions[choice]()
-            except Exception as e:
-                print(str(e))
-            ###### NEW CHOICE HANDLING HERE #########
-            ###### NEW CHOICE HANDLING HERE #########
-            y = np.zeros(14)
-            y[choice] = 1
-            self.train_data.append([y, self.flipped])
 
     def on_end(self, game_result):
         print('--- on_end called ---')
