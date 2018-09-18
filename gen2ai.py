@@ -15,11 +15,12 @@ import math
 
 class ProtossBot(sc2.BotAI):
 
-    def __init__(self, use_model=False):
+    def __init__(self, use_model=False, title=1):
         self.MAX_PROBES = (22 * 3) # 22 workers per nexus. This bot is going for 3 active bases
         self.do_something_after = 0
         self.train_data = []
         self.use_model = use_model
+        self.title = title
         self.scouting_dict = {} # [unit, location]
         self.decisions = {
                           0: self.build_scout,
@@ -89,7 +90,7 @@ class ProtossBot(sc2.BotAI):
         
         # Unit Type [size, (BGR color)]
         draw_dict = {
-                    NEXUS: [15, (0, 255, 0)],
+                    NEXUS: [15, (0, 255, 0)], # TODO use unit-radius instead of made up value
                     PYLON: [3, (20, 235, 0)],
                     PROBE: [1, (55, 200, 0)],
                     ASSIMILATOR: [2, (55, 200, 0)],
@@ -179,9 +180,10 @@ class ProtossBot(sc2.BotAI):
         
         self.flipped = cv2.flip(game_data, 0) # Flip the data to get correct axis
         resized = cv2.resize(self.flipped, dsize=None, fx=2, fy=2) # resize by a factor of 2, make visualization larger
-        cv2.imshow('Intel', resized) # Display image
+        cv2.imshow(self.title, resized) # Display image
         cv2.waitKey(1)
 
+    # Scouting
     async def scout(self):
         self.enemy_base_loc = {}
         for el in self.expansion_locations:
@@ -239,6 +241,7 @@ class ProtossBot(sc2.BotAI):
                 if obs in [probe for probe in self.units(PROBE)]:
                     await self.do(obs.move(self.random_location_variance(self.scouting_dict[obs.tag])))
 
+    # Units
     async def train_probe(self):
         nexi = self.units(NEXUS).ready
         if nexi.exists and self.can_afford(PROBE):
@@ -274,22 +277,7 @@ class ProtossBot(sc2.BotAI):
         if sg.exists and self.can_afford(VOIDRAY):
             await self.do(gw.train(VOIDRAY))
 
-    def random_location_variance(self, enemy_start_location):
-        x = enemy_start_location[0] + random.randrange(-20, 20)
-        y = enemy_start_location[1] + random.randrange(-20, 20)
-
-        if x < 0:
-            x = 0
-        if y < 0:
-            y = 0
-        if x > self.game_info.map_size[0]:
-            x = self.game_info.map_size[0]
-        if y > self.game_info.map_size[1]:
-            y = self.game_info.map_size[1]
-
-        go_to = position.Point2(position.Pointlike((x,y)))
-        return go_to
-
+    # Buildings
     async def expand(self):
         try:
             if self.can_afford(NEXUS):
@@ -331,7 +319,8 @@ class ProtossBot(sc2.BotAI):
         if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
             await self.build(STARGATE, near=pylon)
 
-    async def cybernetics_core(self):
+    # Research and buffs
+    async def do_research(self):
         #TODO: add researching
         return
 
@@ -343,6 +332,7 @@ class ProtossBot(sc2.BotAI):
                 if AbilityId.EFFECT_CHRONOBOOSTENERGYCOST in abilities:
                     await self.do(nexus(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST, nexus))
 
+    # Attack and defense
     def find_target(self, state):
         if len(self.known_enemy_units) > 0:
             return random.choice(self.known_enemy_units)
