@@ -344,22 +344,22 @@ class ProtossBot(sc2.BotAI):
     async def defend_nexus(self): # Group units together in 1 list, instead of 3 seperate. ie for all units in voidray | stalker | zealot
         if len(self.known_enemy_units) > 0:
             target = self.known_enemy_units.closest_to(self.units(NEXUS))
-            for u in self.units(VOIDRAY).idle | self.units(STALKER).idle | self.units(ZEALOT).idle:
-                if len(u) > 2:
+            units = self.units(VOIDRAY).idle | self.units(STALKER).idle | self.units(ZEALOT).idle
+            if len(units) > 2:
+                for u in units:
                     await self.do(u.attack(target))
 
     async def attack_enemy_start(self):
-        if len(self.known_enemy_structures) > 0:
-            target = random.choice(self.known_enemy_structures)
+        if len(self.units(VOIDRAY).idle | self.units(STALKER).idle | self.units(ZEALOT).idle) > 10:
             for u in self.units(VOIDRAY).idle | self.units(STALKER).idle | self.units(ZEALOT).idle:
-                if len(u) > 10:
-                    await self.do(u.attack(target))
+                await self.do(u.attack(self.enemy_start_locations[0]))
                 
     async def attack_known_enemy_unit(self):
         if len(self.known_enemy_units) > 0:
             target = self.known_enemy_units.closest_to(random.choice(self.units(NEXUS)))
-            for u in self.units(VOIDRAY).idle | self.units(STALKER).idle | self.units(ZEALOT).idle:
-                if len(u) > 5:
+            units = self.units(VOIDRAY).idle | self.units(STALKER).idle | self.units(ZEALOT).idle
+            if len(units) > 10:
+                for u in units:
                     await self.do(u.attack(target))
 
     def random_location_variance(self, enemy_start_location):
