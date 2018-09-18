@@ -22,6 +22,23 @@ class ProtossBot(sc2.BotAI):
         self.use_model = use_model
         self.scouting_dict = {}
 
+        self.decisions = {
+                          0: self.build_scout,
+                          1: self.build_zealot,
+                          2: self.build_gateway,
+                          3: self.build_voidray, 
+                          4: self.build_stalker,
+                          5: self.build_worker,
+                          6: self.build_assimilator,
+                          7: self.build_stargate,
+                          8: self.build_pylon,
+                          9: self.defend_nexus,
+                          10: self.attack_known_enemy_unit,
+                          11: self.attack_known_enemy_structure,
+                          12: self.expand,
+                          13: self.do_nothing,
+                          }
+
         if self.use_model:
             print("using model")
             self.model = keras.models.load_model("BasicCNN-10-epochs-0.0001-LR-STAGE1")
@@ -29,19 +46,11 @@ class ProtossBot(sc2.BotAI):
     async def on_step(self, iteration):
         self.time = self.state.game_loop / 22.4 # Produces in-game seconds
         
-        await self.build_scout()
-        await self.scout()
         await self.distribute_workers()
-        await self.use_buffs()
-        await self.train_probe()
-        await self.build_pylon()
-        await self.build_assimilator()
-        await self.expand()
-        await self.cybernetics_core()
-        await self.unit_production_buildings()
-        await self.train_army()
+        await self.scout()
         await self.intel()
-        await self.attack()
+        await self.decide()
+
 
     async def intel(self):
         # Map x,y coords reversed and stored as a touple in numpy.zeroes
