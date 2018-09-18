@@ -34,7 +34,7 @@ class ProtossBot(sc2.BotAI):
                           8: self.build_pylon,
                           9: self.defend_nexus,
                           10: self.attack_known_enemy_unit,
-                          11: self.attack_known_enemy_structure,
+                          11: self.attack_known_enemy_buildings,
                           12: self.expand,
                           13: self.use_buffs,
                           }
@@ -345,6 +345,16 @@ class ProtossBot(sc2.BotAI):
     async def defend_nexus(self): # Group units together in 1 list, instead of 3 seperate. ie for all units in voidray | stalker | zealot
         if len(self.known_enemy_units) > 0:
             target = self.known_enemy_units.closest_to(random.choice(self.units(NEXUS)))
+            for u in self.units(VOIDRAY).idle:
+                await self.do(u.attack(target))
+            for u in self.units(STALKER).idle:
+                await self.do(u.attack(target))
+            for u in self.units(ZEALOT).idle:
+                await self.do(u.attack(target))
+
+    async def attack_known_enemy_buildings(self):
+        if len(self.known_enemy_structures) > 0:
+            target = random.choice(self.known_enemy_structures)
             for u in self.units(VOIDRAY).idle:
                 await self.do(u.attack(target))
             for u in self.units(STALKER).idle:
