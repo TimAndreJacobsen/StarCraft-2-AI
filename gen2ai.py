@@ -372,6 +372,21 @@ class ProtossBot(sc2.BotAI):
             for u in self.units(ZEALOT).idle:
                 await self.do(u.attack(target))
 
+    def random_location_variance(self, enemy_start_location):
+        x = enemy_start_location[0] + random.randrange(-20, 20)
+        y = enemy_start_location[1] + random.randrange(-20, 20)
+
+        if x < 0:
+            x = 0
+        if y < 0:
+            y = 0
+        if x > self.game_info.map_size[0]:
+            x = self.game_info.map_size[0]
+        if y > self.game_info.map_size[1]:
+            y = self.game_info.map_size[1]
+
+        go_to = position.Point2(position.Pointlike((x,y)))
+        return go_to
 
 
 
