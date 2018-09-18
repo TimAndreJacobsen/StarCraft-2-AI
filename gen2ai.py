@@ -340,40 +340,6 @@ class ProtossBot(sc2.BotAI):
         #TODO: add researching
         return
 
-    # If you have a pylon and expansion(state?)
-    async def unit_production_buildings(self):
-        if self.units(PYLON).amount > 0:
-            pylon = self.units(PYLON).random
-
-            # Build one Gateway
-            if len(self.units(GATEWAY)) < 1:
-                if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
-                    await self.build(GATEWAY, near=pylon)
-            # Build one Cybernetics Core
-            if self.units(GATEWAY).ready.exists:
-                if len(self.units(CYBERNETICSCORE)) < 1:
-                    if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
-                        await self.build(CYBERNETICSCORE, near=pylon)
-            # Build stargates; One per nexus + 1
-            if self.units(CYBERNETICSCORE).ready.exists and self.can_afford(STARGATE):
-                if self.units(STARGATE).amount < (self.units(NEXUS).amount + 1):
-                    if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
-                        await self.build(STARGATE, near=pylon)
-            # Build one Robotics Facility
-            if self.units(CYBERNETICSCORE).ready.exists:
-                if len(self.units(ROBOTICSFACILITY)) < 1:
-                    if self.can_afford(ROBOTICSFACILITY) and not self.already_pending(ROBOTICSFACILITY):
-                        await self.build(ROBOTICSFACILITY, near=pylon)
-
-            if self.minerals > 1000 and not self.already_pending(STARGATE):
-                if self.can_afford(STARGATE):
-                    await self.build(STARGATE, near=pylon)
-
-    async def train_army(self):
-        if not self.supply_used > 196:
-            for stargate in self.units(STARGATE).ready.noqueue:
-                if self.can_afford(VOIDRAY) and self.supply_left > 2:
-                    await self.do(stargate.train(VOIDRAY))
 
     def find_target(self, state):
         if len(self.known_enemy_units) > 0:
