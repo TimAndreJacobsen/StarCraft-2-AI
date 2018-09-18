@@ -250,6 +250,19 @@ class ProtossBot(sc2.BotAI):
         if gw.exists and self.can_afford(ZEALOT):
             await self.do(gw.train(ZEALOT))
 
+    async def train_stalker(self):
+        pylon = self.units(PYLON).ready.random
+        gateways = self.units(GATEWAY).ready
+        cybernetics_cores = self.units(CYBERNETICSCORE).ready
+
+        if gateways.exists and cybernetics_cores.exists:
+            if self.can_afford(STALKER):
+                await self.do(random.choice(gateways).train(STALKER))
+
+        if not cybernetics_cores.exists:
+            if self.units(GATEWAY).ready.exists:
+                if self.can_afford(CYBERNETICSCORE) and not self.already_pending(CYBERNETICSCORE):
+                    await self.build(CYBERNETICSCORE, near=pylon)
     def random_location_variance(self, enemy_start_location):
         x = enemy_start_location[0] + random.randrange(-20, 20)
         y = enemy_start_location[1] + random.randrange(-20, 20)
