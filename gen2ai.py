@@ -342,6 +342,16 @@ class ProtossBot(sc2.BotAI):
         else:
             return self.enemy_start_locations[0]
 
+    async def defend_nexus(self): # Group units together in 1 list, instead of 3 seperate. ie for all units in voidray | stalker | zealot
+        if len(self.known_enemy_units) > 0:
+            target = self.known_enemy_units.closest_to(random.choice(self.units(NEXUS)))
+            for u in self.units(VOIDRAY).idle:
+                await self.do(u.attack(target))
+            for u in self.units(STALKER).idle:
+                await self.do(u.attack(target))
+            for u in self.units(ZEALOT).idle:
+                await self.do(u.attack(target))
+
 
 
 
