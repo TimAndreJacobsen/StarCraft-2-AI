@@ -103,10 +103,13 @@ venv.bak/
 # mypy
 .mypy_cache/
 protoss/tempCodeRunnerFile.py
+
+# Project specific
 /sc2
 /train_data
 /logs
-BasicCNN-10-epochs-0.0001-LR-STAGE1
 /train_data_winrate/
 /train_data_gen2
+BasicCNN-10-epochs-0.0001-LR-STAGE1
 df
+protossAI.py
