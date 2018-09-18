@@ -215,6 +215,11 @@ class ProtossBot(sc2.BotAI):
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
                     await self.do(rf.train(OBSERVER))
 
+    async def build_zealot(self):
+        gw = self.units(GATEWAYS).ready.random
+        if gw.exists and self.can_afford(ZEALOT):
+            await self.do(gw.train(ZEALOT))
+
     def random_location_variance(self, enemy_start_location):
         x = enemy_start_location[0] + random.randrange(-20, 20)
         y = enemy_start_location[1] + random.randrange(-20, 20)
