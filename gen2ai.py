@@ -239,8 +239,9 @@ class ProtossBot(sc2.BotAI):
                 if obs in [probe for probe in self.units(PROBE)]:
                     await self.do(obs.move(self.random_location_variance(self.scouting_dict[obs.tag])))
 
-    async def build_scout(self):
-        if len(self.units(OBSERVER)) < math.floor((self.time/60)/3):
+
+    async def train_scout(self):
+        if len(self.units(OBSERVER)) < math.floor((self.time_seconds/60)/3):
             for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
                     await self.do(rf.train(OBSERVER))
