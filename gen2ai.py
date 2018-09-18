@@ -283,7 +283,7 @@ class ProtossBot(sc2.BotAI):
     async def train_voidray(self):
         sg = self.units(STARGATE).ready.random
         if sg.noqueue and self.can_afford(VOIDRAY):
-            await self.do(gw.train(VOIDRAY))
+            await self.do(sg.train(VOIDRAY))
 
     # Buildings
     async def expand(self):
