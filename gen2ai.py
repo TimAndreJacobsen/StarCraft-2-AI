@@ -290,14 +290,11 @@ class ProtossBot(sc2.BotAI):
         go_to = position.Point2(position.Pointlike((x,y)))
         return go_to
 
+    async def expand(self):
+        if self.units(NEXUS).amount == 1:
+            if self.can_afford(NEXUS):
+                await self.expand_now()
 
-    async def use_buffs(self):
-        # Nexus buffs
-        for nexus in self.units(NEXUS).ready:
-            if not nexus.has_buff(BuffId.CHRONOBOOSTENERGYCOST):
-                abilities = await self.get_available_abilities(nexus)
-                if AbilityId.EFFECT_CHRONOBOOSTENERGYCOST in abilities:
-                    await self.do(nexus(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST, nexus))
 
     async def build_pylon(self):
         if self.units(PYLON).amount <= 2:
@@ -323,10 +320,10 @@ class ProtossBot(sc2.BotAI):
                     await self.do(probe.build(ASSIMILATOR, vespene))
         #TODO: Slow down the rate of assimilator building
 
-    async def expand(self):
-        if self.units(NEXUS).amount == 1:
-            if self.can_afford(NEXUS):
-                await self.expand_now()
+    async def build_gateway(self):
+        pylon = self.units(PYLON).ready.random
+        if self.can_afford(GATEWAY) and not self.already_pending(GATEWAY):
+            await self.build(GATEWAY, near=pylon)
 
         elif self.units(NEXUS).amount == 2 and self.units(PROBE).amount > 30:
             if self.can_afford(NEXUS):
@@ -340,6 +337,13 @@ class ProtossBot(sc2.BotAI):
         #TODO: add researching
         return
 
+    async def use_buffs(self):
+        # Nexus buffs
+        for nexus in self.units(NEXUS).ready:
+            if not nexus.has_buff(BuffId.CHRONOBOOSTENERGYCOST):
+                abilities = await self.get_available_abilities(nexus)
+                if AbilityId.EFFECT_CHRONOBOOSTENERGYCOST in abilities:
+                    await self.do(nexus(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST, nexus))
 
     def find_target(self, state):
         if len(self.known_enemy_units) > 0:
@@ -350,23 +354,6 @@ class ProtossBot(sc2.BotAI):
             return self.enemy_start_locations[0]
 
 
-
-    def on_end(self, game_result):
-        print('--- on_end called ---')
-        print(game_result)
-
-        if game_result == Result.Victory:
-            print("Recording winning choices")
-            np.save("train_data_gen2/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
-        else:
-            with open("train_data_winrate/gen2.txt", "r") as f:
-                print("-- opening loss counter --")
-                x = int(f.readline())
-                x = x + 1
-                f.close
-                f = open("train_data_winrate/gen2.txt", "w")
-                f.write(str(x))
-                f.close
 
 
 run_game(maps.get("(2)LostandFoundLE"),
