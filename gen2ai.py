@@ -263,12 +263,12 @@ class ProtossBot(sc2.BotAI):
 
     async def train_zealot(self):
         gw = self.units(GATEWAY).ready.random
-        if self.can_afford(ZEALOT):
+        if gw.noqueue and self.can_afford(ZEALOT):
             await self.do(gw.train(ZEALOT))
 
     async def train_stalker(self):
         pylon = self.units(PYLON).ready.random
-        gateways = self.units(GATEWAY).ready
+        gateways = self.units(GATEWAY).ready.noqueue
         cybernetics_cores = self.units(CYBERNETICSCORE).ready
 
         if gateways.exists and cybernetics_cores.exists:
@@ -282,7 +282,7 @@ class ProtossBot(sc2.BotAI):
 
     async def train_voidray(self):
         sg = self.units(STARGATE).ready.random
-        if sg.exists and self.can_afford(VOIDRAY):
+        if sg.noqueue and self.can_afford(VOIDRAY):
             await self.do(gw.train(VOIDRAY))
 
     # Buildings
