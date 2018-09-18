@@ -335,16 +335,16 @@ class ProtossBot(sc2.BotAI):
         else:
             return self.enemy_start_locations[0]
 
-    async def do_something(self):
+    async def decide(self):
 
         if self.time > self.do_something_after:
             if self.use_model:
-                prediction = self.model.predict([self.flipped.reshape([-1, 176, 200, 1])])
+                prediction = self.model.predict([self.flipped])
                 choice = np.argmax(prediction[0])
             else:
                 choice = random.randrange(0, 14)
             try:
-                await self.choices[choice]()
+                await self.decisions[choice]()
             except Exception as e:
                 print(str(e))
             ###### NEW CHOICE HANDLING HERE #########
