@@ -250,9 +250,13 @@ class ProtossBot(sc2.BotAI):
                 await self.do(random.choice(nexi).train(PROBE))
 
     async def train_scout(self):
-        for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
-            if self.can_afford(OBSERVER) and self.supply_left > 0:
-                await self.do(rf.train(OBSERVER))
+        if len(self.units(ROBOTICSFACILITY)) > 0:
+            for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
+                if self.can_afford(OBSERVER) and self.supply_left > 0:
+                    await self.do(rf.train(OBSERVER))
+        else:
+            if self.can_afford(ROBOTICSFACILITY) and not self.already_pending(ROBOTICSFACILITY):
+                await self.build(ROBOTICSFACILITY, near=self.units(PYLON).ready.random)
 
     async def train_zealot(self):
         gw = self.units(GATEWAY).ready.random
