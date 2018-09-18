@@ -245,8 +245,8 @@ class ProtossBot(sc2.BotAI):
                 if self.can_afford(OBSERVER) and self.supply_left > 0:
                     await self.do(rf.train(OBSERVER))
 
-    async def build_zealot(self):
-        gw = self.units(GATEWAYS).ready.random
+    async def train_zealot(self):
+        gw = self.units(GATEWAY).ready.random
         if gw.exists and self.can_afford(ZEALOT):
             await self.do(gw.train(ZEALOT))
 
