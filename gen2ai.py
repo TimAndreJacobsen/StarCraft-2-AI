@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from math import sqrt
 from operator import itemgetter
-import time_seconds
+import time
 import keras
 import math
 
@@ -23,12 +23,12 @@ class ProtossBot(sc2.BotAI):
         self.title = title
         self.scouting_dict = {} # [unit, location]
         self.decisions = {
-                          0: self.build_scout,
-                          1: self.build_zealot,
+                          0: self.train_scout,
+                          1: self.train_zealot,
                           2: self.build_gateway,
-                          3: self.build_voidray, 
-                          4: self.build_stalker,
-                          5: self.build_worker,
+                          3: self.train_voidray, 
+                          4: self.train_stalker,
+                          5: self.train_probe,
                           6: self.build_assimilator,
                           7: self.build_stargate,
                           8: self.build_pylon,
@@ -62,12 +62,13 @@ class ProtossBot(sc2.BotAI):
             except Exception as e:
                 print(str(e))
 
+            print("Decision: {}".format(choice))
             y = np.zeros(14)
             y[choice] = 1
             self.train_data.append([y, self.flipped])
 
     def on_end(self, game_result):
-        print('--- on_end called ---')
+        print("--- on_end called ---")
         print(game_result)
 
         if game_result == Result.Victory:
@@ -180,7 +181,7 @@ class ProtossBot(sc2.BotAI):
         
         self.flipped = cv2.flip(game_data, 0) # Flip the data to get correct axis
         resized = cv2.resize(self.flipped, dsize=None, fx=2, fy=2) # resize by a factor of 2, make visualization larger
-        cv2.imshow(self.title, resized) # Display image
+        cv2.imshow(str(self.title), resized) # Display image
         cv2.waitKey(1)
 
     # Scouting
@@ -243,15 +244,15 @@ class ProtossBot(sc2.BotAI):
 
     # Units
     async def train_probe(self):
-        nexi = self.units(NEXUS).ready
-        if nexi.exists and self.can_afford(PROBE):
-            await self.do(random.choice(nexi).train(PROBE))
+        nexi = self.units(NEXUS).ready.noqueue
+        if nexi.exists:
+            if  self.can_afford(PROBE):
+                await self.do(random.choice(nexi).train(PROBE))
 
     async def train_scout(self):
-        if len(self.units(OBSERVER)) < math.floor((self.time_seconds/60)/3):
-            for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
-                if self.can_afford(OBSERVER) and self.supply_left > 0:
-                    await self.do(rf.train(OBSERVER))
+        for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
+            if self.can_afford(OBSERVER) and self.supply_left > 0:
+                await self.do(rf.train(OBSERVER))
 
     async def train_zealot(self):
         gw = self.units(GATEWAY).ready.random
@@ -306,8 +307,8 @@ class ProtossBot(sc2.BotAI):
                     probe = self.select_build_worker(vespene.position)
                     if probe is None:
                         break
-                    if not self.units(ASSIMILATOR).closer_than(1.0, vaspene).exists:
-                        await self.do(worker.build(ASSIMILATOR, vaspene))
+                    if not self.units(ASSIMILATOR).closer_than(1.0, vespene).exists:
+                        await self.do(probe.build(ASSIMILATOR, vespene))
 
     async def build_gateway(self):
         pylon = self.units(PYLON).ready.random
@@ -345,6 +346,6 @@ class ProtossBot(sc2.BotAI):
 
 
 run_game(maps.get("(2)LostandFoundLE"),
-    [Bot(Race.Protoss, ProtossBot(use_model=True)),
+    [Bot(Race.Protoss, ProtossBot(use_model=False)),
     Computer(Race.Terran, Difficulty.Hard)],
     realtime=False)
