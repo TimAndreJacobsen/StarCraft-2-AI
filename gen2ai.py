@@ -317,8 +317,8 @@ class ProtossBot(sc2.BotAI):
                     probe = self.select_build_worker(vespene.position)
                     if probe is None:
                         break
-                    await self.do(probe.build(ASSIMILATOR, vespene))
-        #TODO: Slow down the rate of assimilator building
+                    if not self.units(ASSIMILATOR).closer_than(1.0, vaspene).exists:
+                        await self.do(worker.build(ASSIMILATOR, vaspene))
 
     async def build_gateway(self):
         pylon = self.units(PYLON).ready.random
