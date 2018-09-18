@@ -341,14 +341,6 @@ class ProtossBot(sc2.BotAI):
                     await self.do(nexus(AbilityId.EFFECT_CHRONOBOOSTENERGYCOST, nexus))
 
     # Attack and defense
-    def find_target(self, state):
-        if len(self.known_enemy_units) > 0:
-            return random.choice(self.known_enemy_units)
-        elif len(self.known_enemy_structures) > 0:
-            return random.choice(self.known_enemy_structures)
-        else:
-            return self.enemy_start_locations[0]
-
     async def defend_nexus(self): # Group units together in 1 list, instead of 3 seperate. ie for all units in voidray | stalker | zealot
         if len(self.known_enemy_units) > 0:
             target = self.known_enemy_units.closest_to(self.units(NEXUS))
