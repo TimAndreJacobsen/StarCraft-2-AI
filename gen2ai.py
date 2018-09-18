@@ -328,6 +328,10 @@ class ProtossBot(sc2.BotAI):
         elif self.units(NEXUS).amount == 2 and self.units(PROBE).amount > 30:
             if self.can_afford(NEXUS):
                 await self.expand_now()
+    async def build_stargate(self):
+        pylon = self.units(PYLON).ready.random
+        if self.can_afford(STARGATE) and not self.already_pending(STARGATE):
+            await self.build(STARGATE, near=pylon)
 
         elif len(self.units(NEXUS)) < self.time / 30:
             if self.can_afford(NEXUS) and not self.already_pending(NEXUS):
