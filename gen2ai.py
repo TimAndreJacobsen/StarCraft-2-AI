@@ -249,9 +249,8 @@ class ProtossBot(sc2.BotAI):
     # Units
     async def train_probe(self):
         nexi = self.units(NEXUS).ready.noqueue
-        if nexi.exists:
-            if  self.can_afford(PROBE):
-                await self.do(random.choice(nexi).train(PROBE))
+        if self.can_afford(PROBE):
+            await self.do(random.choice(nexi).train(PROBE))
 
     async def train_scout(self):
         if len(self.units(ROBOTICSFACILITY)) > 0:
@@ -264,7 +263,7 @@ class ProtossBot(sc2.BotAI):
 
     async def train_zealot(self):
         gw = self.units(GATEWAY).ready.random
-        if gw.exists and self.can_afford(ZEALOT):
+        if self.can_afford(ZEALOT):
             await self.do(gw.train(ZEALOT))
 
     async def train_stalker(self):
