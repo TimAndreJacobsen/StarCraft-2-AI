@@ -40,8 +40,6 @@ class ProtossBot(sc2.BotAI):
         await self.intel()
         await self.attack()
 
-
-
     async def intel(self):
         # Map x,y coords reversed and stored as a touple in numpy.zeroes
         # numpy.zeroes( (int * int), dtype=color, 8bit unsigned int)
@@ -242,7 +240,6 @@ class ProtossBot(sc2.BotAI):
         #TODO: add researching
         return
 
-    # If you have a pylon and expansion(state?)
     async def unit_production_buildings(self):
         if self.units(PYLON).amount > 0:
             pylon = self.units(PYLON).random
