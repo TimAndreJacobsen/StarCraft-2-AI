@@ -50,6 +50,7 @@ class ProtossBot(sc2.BotAI):
         await self.intel()
         await self.decide()
 
+    # Decision logic
     async def decide(self):
         if self.time_seconds > self.do_something_after:
             if self.use_model:
@@ -67,6 +68,7 @@ class ProtossBot(sc2.BotAI):
             y[choice] = 1
             self.train_data.append([y, self.flipped])
 
+    # Runs when game ends
     def on_end(self, game_result):
         print("--- on_end called ---")
         print(game_result)
@@ -84,6 +86,7 @@ class ProtossBot(sc2.BotAI):
                 f.write(str(x))
                 f.close
 
+    # Visualization
     async def intel(self):
         # Map x,y coords reversed and stored as a touple in numpy.zeroes
         # numpy.zeroes( (int*int), dtype=color, 8bit unsigned int)
@@ -362,6 +365,7 @@ class ProtossBot(sc2.BotAI):
                 for u in units:
                     await self.do(u.attack(target))
 
+    # Helper functions
     def random_location_variance(self, enemy_start_location):
         x = enemy_start_location[0] + random.randrange(-20, 20)
         y = enemy_start_location[1] + random.randrange(-20, 20)
