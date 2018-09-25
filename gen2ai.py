@@ -88,107 +88,49 @@ class ProtossBot(sc2.BotAI):
 
     # Visualization
     async def intel(self):
-        # Map x,y coords reversed and stored as a touple in numpy.zeroes
         # numpy.zeroes( (int*int), dtype=color, 8bit unsigned int)
         game_data = np.zeros((self.game_info.map_size[1], self.game_info.map_size[0], 3), np.uint8)
         
-        # Unit Type [size, (BGR color)]
-        draw_dict = {
-                    NEXUS: [15, (0, 255, 0)], # TODO use unit-radius instead of made up value
-                    PYLON: [3, (20, 235, 0)],
-                    PROBE: [1, (55, 200, 0)],
-                    ASSIMILATOR: [2, (55, 200, 0)],
-                    GATEWAY: [3, (200, 100, 0)],
-                    CYBERNETICSCORE: [3, (150, 150, 0)],
-                    STARGATE: [5, (255, 0, 0)],
-                    ROBOTICSFACILITY: [3, (215, 155, 0)],
-                    VOIDRAY: [3, (255, 100, 0)],
-                    }
+        for unit in self.units().ready:
+            pos = unit.position
+            cv2.circle(game_data, (int(pos[0]), int(pos[1])), int(unit.radius*8), (255, 255, 255), math.ceil(int(unit.radius*0.5)))
 
-        for unit_type in draw_dict:
-            for unit in self.units(unit_type).ready:
-                pos = unit.position
-                # cv2.circle(img, center, radius, color[, thickness[, lineType[, shift]]]) → img
-                # Draws every friendly unit, excluding oberserver
-                cv2.circle(game_data, (int(pos[0]), int(pos[1])), draw_dict[unit_type][0], draw_dict[unit_type][1], -1)
-                
-        main_base_names =   ["nexus", 
-                            "commandcenter", 
-                            "orbitalcommand", 
-                            "planetaryfortress", 
-                            "hatchery", 
-                            "lair", 
-                            "hive"]
+        for unit in self.known_enemy_units:
+            pos = unit.position
+            cv2.circle(game_data, (int(pos[0]), int(pos[1])), int(unit.radius*8), (125, 125, 125), math.ceil(int(unit.radius*0.5)))
 
-        # Draws a medium circle for enemy structures, excluding townhalls
-        for enemy_building in self.known_enemy_structures:
-            pos = enemy_building.position # Get positional data for enemy structures
-            if enemy_building.name.lower() not in main_base_names: 
-                cv2.circle(game_data, (int(pos[0]), int(pos[1])), 5, (200, 50, 212), -1)
+        try:  # catching division by 0 errors.
+            line_max = 50
+            mineral_ratio = self.minerals/1500
+            if mineral_ratio > 1.0:
+                mineral_ratio = 1.0
 
-        # Draws a big circle for enemy townhall
-        for enemy_building in self.known_enemy_structures:
-            pos = enemy_building.position # Get positional data for enemy structures
-            if enemy_building.name.lower() in main_base_names:
-                cv2.circle(game_data, (int(pos[0]), int(pos[1])), 15, (0, 0, 255), -1)
+            vespene_ratio = self.vespene/1500
+            if vespene_ratio > 1.0:
+                vespene_ratio = 1.0
 
-        # Draws a small circle for enemy units
-        for enemy_unit in self.known_enemy_units:
-            if not enemy_unit.is_structure:
-
-                worker_names = ["probe",
-                                "scv",
-                                "drone"]
-
-                pos = enemy_unit.position
-                if enemy_unit.name.lower() in worker_names:
-                    # Draws a dot for enemy workers
-                    cv2.circle(game_data, (int(pos[0]), int(pos[1])), 1, (55, 0, 155), -1)
-                else:
-                    # Draws a dot for enemy units
-                    cv2.circle(game_data, (int(pos[0]), int(pos[1])), 3, (50, 0, 215), -1)
-
-        for obs in self.units(OBSERVER).ready:
-            pos = obs.position
-            # Draws a dot for Oberserver
-            cv2.circle(game_data, (int(pos[0]), int(pos[1])), 1, (255, 255, 255), -1)
-
-        # Creating data ratios for resources, supply and units
-        line_max = 50
-
-        # Minerals and gas
-        mineral_ratio = self.minerals / 1500
-        if mineral_ratio > 1.0:
-            mineral_ratio = 1.0
-        vespene_ratio = self.vespene / 1500
-        if vespene_ratio > 1.0:
-            vespene_ratio = 1.0
-
-        # How close to supply cap
-        try:
             supply_ratio = self.supply_left / self.supply_cap
+            if supply_ratio > 1.0:
+                supply_ratio = 1.0
+
+            supply_left = self.supply_cap / 200.0
+
+            probe_ratio = len(self.units(PROBE)) / (self.supply_cap - self.supply_left)
+            if probe_ratio > 1.0:
+                probe_ratio = 1
+
+            cv2.line(game_data, (0,19), (int(line_max * probe_ratio), 19), (250,250,200), 3) # probe ratio compared to other units
+            cv2.line(game_data, (0,15), (int(line_max * supply_left), 15), (220,200,200), 3)
+            cv2.line(game_data, (0,11), (int(line_max * supply_ratio), 11), (150,150,150), 3)
+            cv2.line(game_data, (0,7), (int(line_max * vespene_ratio), 7), (210,200,0), 3)
+            cv2.line(game_data, (0,3), (int(line_max * probe_ratio), 3), (0,255,25), 3)
         except Exception as e:
-            print(str(e))
+            print(str(e)) # catching division by 0 errors.
 
-        if supply_ratio > 1.0:
-            supply_ratio = 1.0
-        supply_max = self.supply_cap / 200
-
-        # Voidray to worker ratio
-        military_worker_ratio = len(self.units(VOIDRAY)) / (self.supply_cap - self.supply_left)
-        if military_worker_ratio > 1.0:
-            military_worker_ratio = 1.0
-
-        # Visualizing the training data
-        cv2.line(game_data, (0, 19), (int(line_max*military_worker_ratio), 19), (0, 0, 250), 3) # Voidray to worker ratio  COLOR: Red
-        cv2.line(game_data, (0, 15), (int(line_max*supply_max), 15), (220, 200, 200), 3) # Supply used to max ratio (supply/200) COLOR: Light Grey blue
-        cv2.line(game_data, (0, 11), (int(line_max*supply_ratio), 11), (150, 150, 150), 3) # Supply avaliable to used (supply_left/supply_used) COLOR: Grey Darker
-        cv2.line(game_data, (0, 7), (int(line_max*vespene_ratio), 7), (0, 255, 25), 3) # Gas / 1500                            COLOR: Green
-        cv2.line(game_data, (0, 3), (int(line_max*mineral_ratio), 3), (210, 200, 0), 3) # minerals / 1500                        COLOR: Cyan
-        
-        self.flipped = cv2.flip(game_data, 0) # Flip the data to get correct axis
-        resized = cv2.resize(self.flipped, dsize=None, fx=2, fy=2) # resize by a factor of 2, make visualization larger
-        cv2.imshow(str(self.title), resized) # Display image
+        grayed = cv2.cvtColor(game_data, cv2.COLOR_BGR2GRAY)
+        self.flipped = cv2.flip(grayed, 0)
+        resized = cv2.resize(self.flipped, dsize=None, fx=2, fy=2)
+        cv2.imshow(str(self.title), resized)
         cv2.waitKey(1)
 
     # Scouting
